@@ -1,10 +1,18 @@
-'''
-Created on 12 wrz 2014
+# -*- coding: utf-8 -*-
 
-@author: codedigger
-'''
+###############################################################################
+# settings.py
+#
+# author: Paweł Surowiec (codedigger)
+# creation date: 12.05.2014
+# version: 0.0.1
+#
+# Module contains default values for connection with database
+###############################################################################
 
-#---------------------------------------------- Ustawienia dotyczące bazy danych
+SETTINGS_PY_VERSION=(0,0,1)
+
+#-------------------------------------------------------------- database sttings
 db_userName='integrate'
 db_userPassword='integrate'
 db_host='localhost'
@@ -17,5 +25,6 @@ db_string=db_driver+'://'+                                                    \
   db_host+':'+db_port+'/'+                                                    \
   db_name
 
-# Tworzenie tabel - ustawić na True przy pierwszym uruchomieniu
+# Do we have to create tables? Set this to true before first system start.
+# After set this to false, or all your data will be deleted.
 db_createTables=True

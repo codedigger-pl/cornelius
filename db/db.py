@@ -19,11 +19,13 @@ DB_PY_VERSION=(0,0,1)
 
 from sqlalchemy import (create_engine, Column, ForeignKey,
                         Integer, String, Boolean, DateTime, LargeBinary )
-from sqlalchemy.orm import sessionmaker, relationship, backref, relation
+from sqlalchemy.orm import sessionmaker, relationship, backref
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.ext.declarative import declarative_base
 import bcrypt
-from db import settings
+
+if __name__=='__main__': import settings
+else:  from db import settings
 
 # Some base database settings
 engine=create_engine(settings.db_string, echo=False)
@@ -165,6 +167,8 @@ class Integra(Base):
   id=Column(Integer, primary_key=True)
 
   name=Column(String(25))
+  IP=Column(String(15))
+  port=Column(String(10))
 
   detectors=relationship('Detector')
   zones=relationship('Zone')
@@ -207,7 +211,7 @@ class Out(Base):
 
   name=Column(String(50))
 
-  # in which system is this zone
+  # in which system is this out
   system=Column(Integer, ForeignKey('integra.id'))
 
 #------------------------------------------------------------------------------
@@ -282,7 +286,6 @@ class Map(Base):
 
 #-------------------------------------------------------------------------- main
 # If called as app, reset database
-#TODO: Fix this
 if __name__ == '__main__':
   settings.db_createTables=True
 
@@ -320,6 +323,3 @@ if settings.db_createTables:
   session.add(AlarmAction('Powiadomiono Komendanta Ochrony'))
 
   session.commit()
-
-if __name__ == '__main__':
-    pass
