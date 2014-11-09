@@ -9,7 +9,7 @@ db_userName='integrate'
 db_userPassword='integrate'
 db_host='localhost'
 db_port='5432'
-db_name='integrate'
+db_name='cornelius'
 db_driver='postgres'
 
 db_string=db_driver+'://'+                                                    \
@@ -18,4 +18,4 @@ db_string=db_driver+'://'+                                                    \
   db_name
 
 # Tworzenie tabel - ustawić na True przy pierwszym uruchomieniu
-db_createTables=False
+db_createTables=True
