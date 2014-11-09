@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DlgUserAdd</class>
+ <widget class="QDialog" name="DlgUserAdd">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>460</width>
+    <height>167</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QPushButton" name="btnAddUser">
+   <property name="geometry">
+    <rect>
+     <x>360</x>
+     <y>130</y>
+     <width>91</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Dodaj</string>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBox">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>231</width>
+     <height>121</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Dane Użytkownika</string>
+   </property>
+   <widget class="QLabel" name="lblLogin">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>30</y>
+      <width>54</width>
+      <height>10</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Login:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtLogin">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>20</y>
+      <width>113</width>
+      <height>23</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblFirstName">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>47</y>
+      <width>54</width>
+      <height>15</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Imię:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtLastName">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>60</y>
+      <width>113</width>
+      <height>23</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblLastName">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>68</y>
+      <width>54</width>
+      <height>15</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Nazwisko:</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="chkIsAdmin">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>90</y>
+      <width>220</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Użytkownik jest Administratorem</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtFirstName">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>40</y>
+      <width>113</width>
+      <height>23</height>
+     </rect>
+    </property>
+   </widget>
+   <zorder>lblLogin</zorder>
+   <zorder>txtLogin</zorder>
+   <zorder>lblFirstName</zorder>
+   <zorder>txtLastName</zorder>
+   <zorder>lblLastName</zorder>
+   <zorder>chkIsAdmin</zorder>
+   <zorder>txtFirstName</zorder>
+   <zorder>lblLogin</zorder>
+   <zorder>txtLogin</zorder>
+   <zorder>lblFirstName</zorder>
+   <zorder>txtLastName</zorder>
+   <zorder>lblLastName</zorder>
+   <zorder>chkIsAdmin</zorder>
+   <zorder>txtFirstName</zorder>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_2">
+   <property name="geometry">
+    <rect>
+     <x>240</x>
+     <y>10</y>
+     <width>221</width>
+     <height>121</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Hasło Użytkownika</string>
+   </property>
+   <widget class="QLabel" name="lblPassword2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>45</y>
+      <width>90</width>
+      <height>15</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Powtórz hasło:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtPassword2">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>40</y>
+      <width>113</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="echoMode">
+     <enum>QLineEdit::Password</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblPassword1">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>25</y>
+      <width>54</width>
+      <height>15</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Hasło:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtPassword1">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>20</y>
+      <width>113</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="echoMode">
+     <enum>QLineEdit::Password</enum>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>txtLogin</tabstop>
+  <tabstop>txtFirstName</tabstop>
+  <tabstop>txtLastName</tabstop>
+  <tabstop>chkIsAdmin</tabstop>
+  <tabstop>txtPassword1</tabstop>
+  <tabstop>txtPassword2</tabstop>
+  <tabstop>btnAddUser</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

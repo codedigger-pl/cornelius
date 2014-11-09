@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DlgAlarmConfirmation</class>
+ <widget class="QDialog" name="DlgAlarmConfirmation">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>636</width>
+    <height>406</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Potwierdź alarm</string>
+  </property>
+  <widget class="QLabel" name="lblAlarmSource">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>20</y>
+     <width>621</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>20</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>Strefa alarmu</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label1">
+   <property name="geometry">
+    <rect>
+     <x>14</x>
+     <y>257</y>
+     <width>231</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Komentarz dotyczący alarmu:</string>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBox1">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>80</y>
+     <width>281</width>
+     <height>181</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Przyczyna alarmu</string>
+   </property>
+   <widget class="QRadioButton" name="rdbSystemCheck">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>30</y>
+      <width>251</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Sprawdzenie działania systemu</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="rdbFalseAlarm">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>60</y>
+      <width>161</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Fałszywy alarm</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="rdbBreakIn">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>120</y>
+      <width>171</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Włamanie do strefy</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="rdbUserError">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>90</y>
+      <width>141</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Błąd użytkownika</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="rdbSystemError">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>150</y>
+      <width>151</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Błąd systemu</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox2">
+   <property name="geometry">
+    <rect>
+     <x>300</x>
+     <y>80</y>
+     <width>331</width>
+     <height>181</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Podjęte działania</string>
+   </property>
+   <widget class="QCheckBox" name="chbSentPatrol">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>30</y>
+      <width>301</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Wysłanie patrolu</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="chbCallGroup">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>60</y>
+      <width>301</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Wezwanie grupy interwencyjnej</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="chbCallOD">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>90</y>
+      <width>261</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Powiadomienie Oficera Dyżurnego</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="chbCallAdmin">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>120</y>
+      <width>301</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Powiadomienie Administratora</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="chbCallKO">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>150</y>
+      <width>301</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Powiadomienie Komendanta Ochrony</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QPushButton" name="btnAlarmConfirm">
+   <property name="geometry">
+    <rect>
+     <x>500</x>
+     <y>370</y>
+     <width>131</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Potwierdź alarm</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblAlarmType">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>50</y>
+     <width>621</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>13</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Typ alarmu</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QPlainTextEdit" name="txtAlarmDescription">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>280</y>
+     <width>621</width>
+     <height>81</height>
+    </rect>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
