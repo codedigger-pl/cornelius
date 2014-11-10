@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'SystemEditor.ui'
 #
-# Created: Sun Nov  9 22:00:11 2014
+# Created: Mon Nov 10 14:37:26 2014
 #      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -30,6 +30,8 @@ class Ui_SystemEditor(object):
         self.verticalLayout.addWidget(self.label_5)
         self.lstSystems = QtGui.QListWidget(SystemEditor)
         self.lstSystems.setMaximumSize(QtCore.QSize(200, 16777215))
+        self.lstSystems.setAlternatingRowColors(True)
+        self.lstSystems.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.lstSystems.setObjectName(_fromUtf8("lstSystems"))
         self.verticalLayout.addWidget(self.lstSystems)
         self.widget = QtGui.QWidget(SystemEditor)

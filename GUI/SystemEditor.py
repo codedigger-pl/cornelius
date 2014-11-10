@@ -48,9 +48,19 @@ class SystemEditor(Ui_SystemEditor, QtGui.QDialog):
     self.cmbZones.currentIndexChanged.connect(self.selectedZoneChanged)
 
     # connecting changing data
-    self.txtSystemName.editingFinished.connect(self.systemNameChanged)
-    self.txtIPAddress.editingFinished.connect(self.systemIPChanged)
-    self.txtIntegrationPort.editingFinished.connect(self.systemPortChanged)
+    self.txtSystemName.editingFinished.connect(
+      lambda: self.selectedSystem.__setattr__('name',
+                                              self.txtSystemName.text()))
+
+    self.txtIPAddress.editingFinished.connect(
+      lambda: self.selectedSystem.__setattr__('IP',
+                                              self.txtIPAddress.text()))
+
+    self.txtIntegrationPort.editingFinished.connect(
+      lambda: self.selectedSystem.__setattr__('port',
+                                              self.txtIntegrationPort.text()))
+
+    # these are more complex. Putting it in lambda looks really ugly
     self.txtDetectorName.editingFinished.connect(self.detectorNameChanged)
     self.txtOutName.editingFinished.connect(self.outNameChanged)
     self.txtZoneName.editingFinished.connect(self.zoneNameChanged)
@@ -123,8 +133,9 @@ class SystemEditor(Ui_SystemEditor, QtGui.QDialog):
 
     # getting system from database and deleting it
     system=self.session.query(db.Integra).filter(db.Integra.id==currID).one()
-    self.session.delete(system)
-    self.session.commit()
+    if system:
+      self.session.delete(system)
+      self.session.commit()
 
     # refreshing list
     self.loadSystems()
@@ -134,7 +145,7 @@ class SystemEditor(Ui_SystemEditor, QtGui.QDialog):
     """Action after clicking "Save changes" button"""
     self.session.commit()
     self.loadSystems()
-    self.lstSystems.clicked.emit()
+    self.refreshSystemData()
 
   @pyqtSlot(int)
   def selectedDetectorChanged(self, index):
@@ -176,37 +187,26 @@ class SystemEditor(Ui_SystemEditor, QtGui.QDialog):
     # saving current edited system
     self.selectedSystem=currSystem
 
-    # displaying base data
-    self.txtSystemName.setText(currSystem.name)
-    self.txtIPAddress.setText(currSystem.IP)
-    self.txtIntegrationPort.setText(currSystem.port)
-
-    # displaying detectors
-    self.cmbDetectors.clear()
-    for detector in currSystem.detectors:
-      self.cmbDetectors.addItem(detector.name, userData=detector)
-
-    # displaying outs
-    self.cmbOuts.clear()
-    for out in currSystem.outs:
-      self.cmbOuts.addItem(out.name, userData=out)
-
-    # displaying zones
-    self.cmbZones.clear()
-    for zone in currSystem.zones:
-      self.cmbZones.addItem(zone.name, userData=zone)
-
-  @pyqtSlot()
-  def systemNameChanged(self):
-    self.selectedSystem.name=self.txtSystemName.text()
-
-  @pyqtSlot()
-  def systemIPChanged(self):
-    self.selectedSystem.IP=self.txtIPAddress.text()
-
-  @pyqtSlot()
-  def systemPortChanged(self):
-    self.selectedSystem.port=self.txtIntegrationPort.text()
+    self.refreshSystemData()
+#     # displaying base data
+#     self.txtSystemName.setText(currSystem.name)
+#     self.txtIPAddress.setText(currSystem.IP)
+#     self.txtIntegrationPort.setText(currSystem.port)
+#
+#     # displaying detectors
+#     self.cmbDetectors.clear()
+#     for detector in currSystem.detectors:
+#       self.cmbDetectors.addItem(detector.name, userData=detector)
+#
+#     # displaying outs
+#     self.cmbOuts.clear()
+#     for out in currSystem.outs:
+#       self.cmbOuts.addItem(out.name, userData=out)
+#
+#     # displaying zones
+#     self.cmbZones.clear()
+#     for zone in currSystem.zones:
+#       self.cmbZones.addItem(zone.name, userData=zone)
 
   @pyqtSlot()
   def detectorNameChanged(self):
@@ -225,6 +225,29 @@ class SystemEditor(Ui_SystemEditor, QtGui.QDialog):
     currZone=self.cmbZones.itemData(self.cmbZones.currentIndex(),
                                     role=QtCore.Qt.UserRole)
     currZone.name=self.txtDetectorName.text()
+
+  def refreshSystemData(self):
+    """Refreshing saved data from self.selectedSystem"""
+    # displaying base data
+    self.txtSystemName.setText(self.selectedSystem.name)
+    self.txtIPAddress.setText(self.selectedSystem.IP)
+    self.txtIntegrationPort.setText(self.selectedSystem.port)
+
+    # displaying detectors
+    self.cmbDetectors.clear()
+    for detector in self.selectedSystem.detectors:
+      self.cmbDetectors.addItem(detector.name, userData=detector)
+
+    # displaying outs
+    self.cmbOuts.clear()
+    for out in self.selectedSystem.outs:
+      self.cmbOuts.addItem(out.name, userData=out)
+
+    # displaying zones
+    self.cmbZones.clear()
+    for zone in self.selectedSystem.zones:
+      self.cmbZones.addItem(zone.name, userData=zone)
+
 
 # Running SystemEditor like a application
 if __name__=='__main__':

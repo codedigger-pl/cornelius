@@ -8,6 +8,7 @@ from GUI.LoginWindow import LoginWindow
 from GUI.UsersList import UsersList
 from GUI.Event import Event, EventType
 from GUI.EventList import EventList
+from GUI.SystemEditor import SystemEditor
 
 class MainWidget(QtGui.QWidget):
   def __init__(self):
@@ -223,6 +224,11 @@ class MainWindow(QtGui.QMainWindow):
     self.actionUsersList=QtGui.QAction('Lista użytkowników', self)
     self.actionUsersList.triggered.connect(self.showUsersList)
 
+    # Dialog allowing adding, deleting and modifying integrated systems
+    self.actionSystemList=QtGui.QAction('Lista systemów', self)
+    self.actionSystemList.triggered.connect(
+      lambda: SystemEditor().exec_() )
+
     fileMenu=self.menubar.addMenu("&Plik")
     fileMenu.addAction(self.actionExit)
     windowMenu=self.menubar.addMenu("Ekran")
@@ -234,6 +240,7 @@ class MainWindow(QtGui.QMainWindow):
     narzedziaSerwisMenu.addAction(self.actionPozycjaKursora)
     adminMenu=self.menubar.addMenu('Administracja')
     adminMenu.addAction(self.actionUsersList)
+    adminMenu.addAction(self.actionSystemList)
 
     self.mainWidget=MainWidget()
     self.setCentralWidget(self.mainWidget)
