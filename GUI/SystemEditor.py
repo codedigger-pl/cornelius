@@ -129,16 +129,18 @@ class SystemEditor(Ui_SystemEditor, QtGui.QDialog):
   def delSystemClicked(self):
     """Action after clicking "Delete" button"""
     # getting selected system ID
-    currID=self.lstSystems.currentItem().data(QtCore.Qt.UserRole)
+    try:
+      currID=self.lstSystems.currentItem().data(QtCore.Qt.UserRole)
 
-    # getting system from database and deleting it
-    system=self.session.query(db.Integra).filter(db.Integra.id==currID).one()
-    if system:
-      self.session.delete(system)
-      self.session.commit()
+      # getting system from database and deleting it
+      system=self.session.query(db.Integra).filter(db.Integra.id==currID).one()
+      if system:
+        self.session.delete(system)
+        self.session.commit()
 
-    # refreshing list
-    self.loadSystems()
+      # refreshing list
+      self.loadSystems()
+    except: pass
 
   @pyqtSlot()
   def saveChangesClicked(self):
