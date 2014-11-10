@@ -179,6 +179,7 @@ class Out(QtCore.QObject):
 
   """Function returns class attributes"""
   def getActive(self): return self.active
+  def getName(self): return self.name
 
 class Zone(QtCore.QObject):
   """Base class for any alarm zone in system. This is should be base class for all
@@ -386,7 +387,7 @@ class Integra(QtCore.QObject):
   hasZonesAlarmChanged=QtCore.pyqtSignal()
   hasOutsChanged=QtCore.pyqtSignal()
 
-  def __init__(self, detectorsNumber=0, outsNumber=0, zonesNumber=0):
+  def __init__(self, name='Integra', detectorsNumber=0, outsNumber=0, zonesNumber=0):
     """Class initializing.
 
     input:
@@ -402,6 +403,7 @@ class Integra(QtCore.QObject):
     self.__detectors=[]
     self.__outs=[]
     self.__zones=[]
+    self.name=name
     for i in range(detectorsNumber): self.__detectors.append(Detector('Detector '+str(i)))
     for i in range(outsNumber): self.__outs.append(Out('Out '+str(i)))
     for i in range(zonesNumber): self.__zones.append(Zone('Zone '+str(i)))
@@ -411,6 +413,7 @@ class Integra(QtCore.QObject):
 #     self.th.start()
 
   """Returns class attributes"""
+  def getName(self): return self.name
   def getDetectors(self): return self.__detectors
   def getDetector(self, i): return self.__detectors[i]
   def getOuts(self): return self.__outs
@@ -656,7 +659,7 @@ class Integra24(Integra):
 
     input: none
     output: none"""
-    Integra.__init__(self, detectorsNumber=24, outsNumber=20, zonesNumber=4)
+    Integra.__init__(self, name='Integra 24', detectorsNumber=24, outsNumber=20, zonesNumber=4)
 
 class Integra32(Integra):
   """Base Satel Integra32 class"""
@@ -666,7 +669,7 @@ class Integra32(Integra):
 
     input: none
     output: none"""
-    Integra.__init__(self, detectorsNumber=32, outsNumber=32, zonesNumber=16)
+    Integra.__init__(self, name='Integra 32', detectorsNumber=32, outsNumber=32, zonesNumber=16)
 
 class Integra64(Integra):
   """Base Satel Integra64 class"""
@@ -676,7 +679,7 @@ class Integra64(Integra):
 
     input: none
     output: none"""
-    Integra.__init__(self, detectorsNumber=64, outsNumber=64, zonesNumber=32)
+    Integra.__init__(self, name='Integra 64', detectorsNumber=64, outsNumber=64, zonesNumber=32)
 
 class Integra64Plus(Integra64):
   """Base Satel Integra 64 Plus class. Currently the same as Integra64"""
@@ -690,7 +693,7 @@ class Integra128(Integra):
 
     input: none
     output: none"""
-    Integra.__init__(self, detectorsNumber=128, outsNumber=128, zonesNumber=32)
+    Integra.__init__(self, name='Integra 128', detectorsNumber=128, outsNumber=128, zonesNumber=32)
 
 class Integra128Plus(Integra128):
   """Base Satel Integra128 Plus class. Currently tha same as Integra128 class"""
@@ -704,7 +707,7 @@ class Integra256Plus(Integra):
 
     input: none
     output: none"""
-    Integra.__init__(self, detectorsNumber=256, outsNumber=256, zonesNumber=32)
+    Integra.__init__(self, name='Integra 256', detectorsNumber=256, outsNumber=256, zonesNumber=32)
 
 #------------------------------------------------------------------ testing part
 if __name__ == '__main__':

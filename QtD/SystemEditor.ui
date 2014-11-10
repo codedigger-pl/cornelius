@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SystemEditor</class>
+ <widget class="QDialog" name="SystemEditor">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>762</width>
+    <height>625</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Edytor systemów</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QLabel" name="label_5">
+         <property name="maximumSize">
+          <size>
+           <width>200</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Lista systemów:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="lstSystems">
+         <property name="maximumSize">
+          <size>
+           <width>200</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="widget" native="true">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>200</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <widget class="QPushButton" name="btnDelSystem">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>71</width>
+            <height>23</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Usuń</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="btnAddSystem">
+          <property name="geometry">
+           <rect>
+            <x>130</x>
+            <y>0</y>
+            <width>71</width>
+            <height>23</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Dodaj</string>
+          </property>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Nazwa systemu:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="txtSystemName"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>Adres IP:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="txtIPAddress"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Port integracji</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="txtIntegrationPort"/>
+       </item>
+       <item>
+        <widget class="QTabWidget" name="tabWidget">
+         <property name="currentIndex">
+          <number>2</number>
+         </property>
+         <widget class="QWidget" name="tabDetectors">
+          <attribute name="title">
+           <string>Wejścia</string>
+          </attribute>
+          <widget class="QComboBox" name="cmbDetectors">
+           <property name="geometry">
+            <rect>
+             <x>20</x>
+             <y>10</y>
+             <width>411</width>
+             <height>23</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_2">
+           <property name="geometry">
+            <rect>
+             <x>30</x>
+             <y>50</y>
+             <width>101</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Nazwa wejścia</string>
+           </property>
+          </widget>
+          <widget class="QLineEdit" name="txtDetectorName">
+           <property name="geometry">
+            <rect>
+             <x>130</x>
+             <y>50</y>
+             <width>311</width>
+             <height>22</height>
+            </rect>
+           </property>
+          </widget>
+         </widget>
+         <widget class="QWidget" name="tabOuts">
+          <attribute name="title">
+           <string>Wyjścia</string>
+          </attribute>
+          <widget class="QComboBox" name="cmbOuts">
+           <property name="geometry">
+            <rect>
+             <x>20</x>
+             <y>10</y>
+             <width>411</width>
+             <height>23</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_3">
+           <property name="geometry">
+            <rect>
+             <x>30</x>
+             <y>50</y>
+             <width>101</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Nazwa wyjścia</string>
+           </property>
+          </widget>
+          <widget class="QLineEdit" name="txtOutName">
+           <property name="geometry">
+            <rect>
+             <x>140</x>
+             <y>50</y>
+             <width>311</width>
+             <height>22</height>
+            </rect>
+           </property>
+          </widget>
+         </widget>
+         <widget class="QWidget" name="tabZones">
+          <attribute name="title">
+           <string>Strefy</string>
+          </attribute>
+          <widget class="QComboBox" name="cmbZones">
+           <property name="geometry">
+            <rect>
+             <x>20</x>
+             <y>10</y>
+             <width>411</width>
+             <height>23</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_4">
+           <property name="geometry">
+            <rect>
+             <x>30</x>
+             <y>50</y>
+             <width>101</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Nazwa strefy</string>
+           </property>
+          </widget>
+          <widget class="QLineEdit" name="txtZoneName">
+           <property name="geometry">
+            <rect>
+             <x>130</x>
+             <y>50</y>
+             <width>311</width>
+             <height>22</height>
+            </rect>
+           </property>
+          </widget>
+         </widget>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnSaveChanges">
+         <property name="text">
+          <string>Zapisz zmiany</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

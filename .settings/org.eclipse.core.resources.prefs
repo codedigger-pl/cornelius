@@ -1,9 +1,11 @@
 eclipse.preferences.version=1
 encoding//GUI/DlgAlarmConfirmation.py=utf-8
+encoding//GUI/DlgSystemAdd.py=utf-8
 encoding//GUI/Event.py=utf-8
 encoding//GUI/EventList.py=utf-8
 encoding//GUI/LoginWindow.py=utf-8
 encoding//GUI/MainWindow.py=utf-8
+encoding//GUI/SystemEditor.py=utf-8
 encoding//Satel/integra.py=utf-8
 encoding//db/db.py=utf-8
 encoding//db/settings.py=utf-8

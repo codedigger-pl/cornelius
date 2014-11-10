@@ -11,7 +11,7 @@ from db import db
 class DlgUserAdd(Ui_DlgUserAdd, QtGui.QDialog):
   def __init__(self):
     super(DlgUserAdd, self).__init__()
-    super(QtGui.QDialog, self).__init__()
+#     super(QtGui.QDialog, self).__init__()
     self.setupUi(self)
     self.btnAddUser.clicked.connect(self.userAddClicked)
 
