@@ -10,8 +10,8 @@ from GUI.Event import Event, EventType
 from GUI.EventList import EventList
 from GUI.SystemEditor import SystemEditor
 from GUI.DlgUserPasswordChange import DlgUserPasswordChange
+from GUI.MapEditor import MapEditor
 
-from statics import statics
 
 class MainWidget(QtGui.QWidget):
   def __init__(self):
@@ -104,19 +104,6 @@ class MainWidget(QtGui.QWidget):
     self.lewy.addTopLevelItem(self.lewyK845)
 
     self.lewy.expandAll()
-    #Tworzenie przykładowej struktury menu - bez mapek
-
-    '''
-    self.lewyK845B5=Item("K-845, b5")
-    for i in range(10):
-      item1=Item("Budynek "+str(i))
-      #self.lewyK836.addChild(item1)
-      item2=Item("'Budynek "+str(i))
-      self.lewyK845.addChild(item2)
-      item3=Item("B5 -"+str(i))
-      self.lewyK845B5.addChild(item3)
-    self.lewyK845.addChild(self.lewyK845B5)
-    '''
 
     #Dodawanie obsługi dwukliku
     self.lewy.itemDoubleClicked.connect(self.lewyClicked)
@@ -147,19 +134,12 @@ class MainWidget(QtGui.QWidget):
     self.gorny.setMaximumHeight(100)
     self.gorny.setMinimumHeight(50)
 
-    #w4=QtGui.QPushButton()
     wc=QtGui.QWidget()
 
-#     lewyDock.addWidget(self.lewy)
-#     hLayout.addWidget(self.lewy)
-#     hLayout.addWidget(lewyDock)
-#     self.addDockWidget(QtCore.RightDockWidgetArea, lewyDock);
     hLayout.addWidget(self.centralny)
-    #hLayout.addWidget(w4)
 
     wc.setLayout(hLayout)
 
-    #vLayout.addWidget(self.gorny)
     vLayout.addWidget(wc)
     vLayout.addWidget(self.dolny)
 
@@ -175,13 +155,6 @@ class MainWidget(QtGui.QWidget):
 
   def appendEvent(self, event):
     self.eventList.addItem(event)
-#     if self.parent()!=None: self.parent().setRedSkin()
-
-#   def eventListDblClick(self):
-#     item=self.eventList.takeItem(self.eventList.currentRow())
-#     self.appendInfo(">>> Potwierdzenie zdarzenia '"+item.text()+"'")
-#     item=None
-#     if self.eventList.count()==0: self.parent().setBlueSkin()
 
   def signalAlarm(self):
     for i in self.CA.getZones():
@@ -194,7 +167,7 @@ class MainWindow(QtGui.QMainWindow):
     self.blueSkin=self.__createBlueSkin()
     self.redSkin=self.__createRedSkin()
 
-    self.setBlueSkin()
+    self.setPalette(self.blueSkin)
 
     self.menubar = self.menuBar()
     self.isPokazPozycjeKursora=False
@@ -221,7 +194,6 @@ class MainWindow(QtGui.QMainWindow):
     self.actionUserPasswordChange=QtGui.QAction('Zmień hasło', self)
     self.actionUserPasswordChange.triggered.connect(
       lambda: DlgUserPasswordChange().exec_())
-#       lambda: print(statics.currentLogedUser) )
 
     self.actionLegenda=QtGui.QAction("Pokaż legendę", self)
     self.actionLegenda.triggered.connect(self.showLegend)
@@ -238,6 +210,11 @@ class MainWindow(QtGui.QMainWindow):
     self.actionSystemList.triggered.connect(
       lambda: SystemEditor().exec_() )
 
+    # Action allowing adding, deleting and modifying system maps
+    self.actionMapEditor=QtGui.QAction('Edytor map', self)
+    self.actionMapEditor.triggered.connect(
+      lambda: self.mainWidget.centralny.addTab(MapEditor(), 'Edytor map'))
+
     fileMenu=self.menubar.addMenu("&Plik")
     fileMenu.addAction(self.actionExit)
     windowMenu=self.menubar.addMenu("Ekran")
@@ -251,6 +228,7 @@ class MainWindow(QtGui.QMainWindow):
     adminMenu=self.menubar.addMenu('Administracja')
     adminMenu.addAction(self.actionUsersList)
     adminMenu.addAction(self.actionSystemList)
+    adminMenu.addAction(self.actionMapEditor)
 
     self.mainWidget=MainWidget()
     self.setCentralWidget(self.mainWidget)
@@ -265,8 +243,10 @@ class MainWindow(QtGui.QMainWindow):
     self.userDock.close()
 
     # Automatic skin changing
-    self.mainWidget.eventList.signal_emptyList.connect(self.setBlueSkin)
-    self.mainWidget.eventList.signal_notEmptyList.connect(self.setRedSkin)
+    self.mainWidget.eventList.signal_emptyList.connect(
+      lambda: self.setPalette(self.blueSkin))
+    self.mainWidget.eventList.signal_notEmptyList.connect(
+      lambda: self.setPalette(self.redSkin))
 
     self.mainWidget.eventList.appendEvent(Event(alarmType=EventType.Panic,
                                       zone='Strefa testowa'))
@@ -549,8 +529,6 @@ class MainWindow(QtGui.QMainWindow):
     palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.ToolTipText, brush)
     return palette
 
-  def setBlueSkin(self): self.setPalette(self.blueSkin)
-  def setRedSkin(self): self.setPalette(self.redSkin)
 
   def switchFullScreen(self):
     if self.isFullScreen(): self.showNormal()
