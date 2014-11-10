@@ -9,6 +9,9 @@ from GUI.UsersList import UsersList
 from GUI.Event import Event, EventType
 from GUI.EventList import EventList
 from GUI.SystemEditor import SystemEditor
+from GUI.DlgUserPasswordChange import DlgUserPasswordChange
+
+from statics import statics
 
 class MainWidget(QtGui.QWidget):
   def __init__(self):
@@ -214,6 +217,12 @@ class MainWindow(QtGui.QMainWindow):
     self.actionPozycjaKursora.setCheckable(True)
     self.actionPozycjaKursora.triggered.connect(self.pozycjaKursoraCon)
 
+    # Dialog allowing user change his password
+    self.actionUserPasswordChange=QtGui.QAction('Zmień hasło', self)
+    self.actionUserPasswordChange.triggered.connect(
+      lambda: DlgUserPasswordChange().exec_())
+#       lambda: print(statics.currentLogedUser) )
+
     self.actionLegenda=QtGui.QAction("Pokaż legendę", self)
     self.actionLegenda.triggered.connect(self.showLegend)
 
@@ -236,6 +245,7 @@ class MainWindow(QtGui.QMainWindow):
     narzedziaMenu=self.menubar.addMenu("Narzędzia")
     narzedziaMenu.addAction(self.actionLegenda)
     narzedziaMenu.addAction(self.actionMapy)
+    narzedziaMenu.addAction(self.actionUserPasswordChange)
     narzedziaSerwisMenu=narzedziaMenu.addMenu("Serwis")
     narzedziaSerwisMenu.addAction(self.actionPozycjaKursora)
     adminMenu=self.menubar.addMenu('Administracja')
@@ -638,7 +648,7 @@ if __name__ == '__main__':
 #nie mam pomysłu jak to poprawić...
   iloscProb=0
   while iloscProb<3:
-    wynik=LoginWindow().exec()
+    wynik=LoginWindow().exec_()
     if wynik==1:
       wMain=MainWindow()
       wMain.showFullScreen()

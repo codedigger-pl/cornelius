@@ -38,6 +38,8 @@ class DlgAlarmConfirmation(QtGui.QDialog, Ui_DlgAlarmConfirmation):
 
   @pyqtSlot()
   def alarmConfirmAction(self):
+    session=db.Session()
+    session.add(statics.currentLogedUser)
     alarmEvent=db.AlarmEvent()
     alarmEvent.confirmUserID=statics.currentLogedUser.id
     alarmEvent.date=self.event.date
@@ -47,7 +49,6 @@ class DlgAlarmConfirmation(QtGui.QDialog, Ui_DlgAlarmConfirmation):
     alarmEvent.comment=self.txtAlarmDescription.toPlainText()
     alarmEvent.reasonID=self.__getDBAlarmReason()
     alarmEvent.actions=self.__getDBAlarmAction()
-    session=db.Session()
     session.add(alarmEvent)
     session.commit()
     session.close()

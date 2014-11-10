@@ -1,5 +1,5 @@
 # Aktualnie zalogowany użytkownik programu
-currentLogedUser=None
+currentLogedUser=None # db.User
 
 
 alarmAction=('Wysłano patrol',
