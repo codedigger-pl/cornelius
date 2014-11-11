@@ -248,8 +248,8 @@ class MainWindow(QtGui.QMainWindow):
     self.mainWidget.eventList.signal_notEmptyList.connect(
       lambda: self.setPalette(self.redSkin))
 
-    self.mainWidget.eventList.appendEvent(Event(alarmType=EventType.Panic,
-                                      zone='Strefa testowa'))
+#     self.mainWidget.eventList.appendEvent(Event(alarmType=EventType.Panic,
+#                                       zone='Strefa testowa'))
 
   def __createBlueSkin(self):
     palette = QtGui.QPalette()

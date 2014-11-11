@@ -1,19 +1,26 @@
-'''
-Created on 4 cze 2014
+# -*- coding: utf-8 -*-
 
-@author: codedigger
-'''
+###############################################################################
+# MapEditor.py
+#
+# author: Paweł Surowiec (codedigger)
+# creation date: 10.11.2014
+# version: 0.0.1
+#
+# Module contains MapEditor panel allowing user adding, modifying and deleting
+# maps from system. It is based on QWidget class, can be used enywhere. In
+# Cornelius system it used as map (almost fullscreen).
+#
+# Calling this module directly, it will call application window with this
+# widget as central widget.
+###############################################################################
 
 from PyQt4 import QtGui, QtCore
-import random
-from Satel import integra
-from time import sleep
 
-#TODO: zamiast QLabale, ścieżka do obrazka oraz zastosowanie drawImage lub DrawPicture
 class Map(QtGui.QLabel):
   def __init__(self, pixmap):
     '''
-    pixmap: podkłąd graficzny QtGui.QPixmap()
+    pixmap: podkład graficzny QtGui.QPixmap()
     '''
     super(Map, self).__init__()
     self.setScaledContents(True)
@@ -61,7 +68,6 @@ class Map(QtGui.QLabel):
       elif detector.getAlarmMemory(): qp.setBrush(QtCore.Qt.darkRed)
       elif detector.getActive(): qp.setBrush(QtCore.Qt.green)
       qp.drawEllipse(point, 5, 5)
-      
     for out, point in self.outs:
       qp.setBrush(QtCore.Qt.gray)
       # Kolejność pokazywania stanu czuki:
@@ -83,25 +89,3 @@ class Map(QtGui.QLabel):
       elif zone.getAlarmMemory(): brush.setColor(QtGui.QColor(255,50,50,100))
       qp.setBrush(brush)
       qp.drawPolygon(polygon)
-
-class CentralWidget(QtGui.QTabWidget):
-  def __init__(self):
-    super(CentralWidget, self).__init__()
-    self.setTabsClosable(True)
-    self.setMovable(True)
-    self.tabCloseRequested.connect(self.closeTab)
-    self.tabs=[]
-    
-    #self.CA.hasZonesChanged.connect(self.signalAlarm)
-  """def addPix(self, name, pixmap):
-    #Dodanie nowej zakładki wraz z podkładem
-    mapa=Map(pixmap)
-    mapa.setGeometry(self.geometry())
-    '''for i in range(1, 128):
-      mapa.addDetector(self.CA.getDetector(i), QtCore.QPoint(10+10*i,10))
-      '''#mapa.addDetector(self.CA.getDetector(5), QtCore.QPoint(50, 50))
-    self.tabs.append(mapa)
-    self.addTab(mapa, name)"""
-  def closeTab(self, index):
-    #if self.count()>1: self.removeTab(index)
-    self.removeTab(index)
