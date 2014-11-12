@@ -22,46 +22,64 @@ from PyQt4.QtCore import pyqtSlot
 from QtD.MapEditor import Ui_MapEditor
 from db import db
 
-# class Map(QtGui.QWidget):
-#   """Map widget: displaing graphic with detectors, outs, points..."""
-#
-#   # what data to display
-#   detectors=[]      # list of db.Detector
-#   outs=[]           # list of db.Out
-#   zones=[]          # list of db.Zone
-#
-#   def __init__(self, dbMap):
-#     """Default initialization
-#
-#     input: map - dbMap data from database (db.Map)
-#     output: none"""
-#     super(Map, self).__init__()
-#     self.dbMap=dbMap
-#
-#     self.layout=QtGui.QHBoxLayout()
-#     self.setLayout(self.layout)
-#
-#     self.mapGraphic=QtGui.QLabel('<html><head/><body><p>Kliknij</p><p><span style=\" font-weight:600;\">&quot;Dodaj podkład graficzny&quot;</span></p><p>aby załadować grafikę</p></body></html>')
-#     self.mapGraphic.setScaledContents(True)
-#     self.layout.addWidget(self.mapGraphic)
-#
-#   def loadDataFromMap(self, dbMap):
-#     """Load data from given variable
-#
-#     input: dbMap - map data from database (db.Map)
-#     output: none"""
-#
-#     session=db.Session()
-
-
 class MapEditor(Ui_MapEditor, QtGui.QWidget):
   """Map editor panel
   It is QWidget, used as the same as simple map in cornelius system. It allow
   adding, deleting and modifying maps in system"""
 
+  # private class variables
   detectors=[]
   outs=[]
   zones=[]
+
+  #private class classes
+  class __MoveablePoint(QtGui.QLabel):
+    """Moveable point on map. It can move by mouse. Base class for other
+    map editor elements"""
+    def __init__(self, element):
+      QtGui.QLabel.__init__(self)
+      self.isMouseKeyHolding=False
+      self.element=element
+      self.__offset=0
+
+    def mousePressEvent(self, event):
+      """Start moving"""
+      if event.buttons() == QtCore.Qt.LeftButton:
+        self.isMouseKeyHolding=True
+        self.__offset=event.pos()
+
+    def mouseReleaseEvent(self, event):
+      """Stop moving"""
+      self.isMouseKeyHolding=False
+
+      session=db.Session()
+      session.add(self.element)
+      self.element.pointX=self.geometry().x()/self.parent().width()*1000
+      self.element.pointY=self.geometry().y()/self.parent().height()*1000
+      print(self.element.pointX)
+      print(self.element.pointY)
+      session.commit()
+      session.close()
+
+    def mouseMoveEvent(self, event):
+      """Moving element, while mouse LeftButton is pressed"""
+      if self.isMouseKeyHolding:
+        self.move(self.mapToParent(event.pos()-self.__offset))
+
+  class __DetectorPoint(__MoveablePoint):
+    def paintEvent(self, event):
+      QtGui.QLabel.paintEvent(self, event)
+      qp = QtGui.QPainter()
+      qp.begin(self)
+
+      qp.setRenderHint(QtGui.QPainter.Antialiasing)
+      qp.setPen(QtCore.Qt.black)
+      qp.setBrush(QtCore.Qt.Dense5Pattern)
+
+      qp.setBrush(QtCore.Qt.blue)
+      qp.drawEllipse(0,0,10,10)
+
+      qp.end()
 
 #---------------------------------------------------------------------- __init__
   def __init__(self):
@@ -77,7 +95,8 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
 
     self.systemList.itemDoubleClicked.connect(self.systemListDbClicked)
 
-    self.lblGraphic.paintEvent=self.repaintMapGraphic
+#     self.lblGraphic.paintEvent=self.repaintMapGraphic
+    self.lblGraphic.resizeEvent=self.resizeMapGraphic
 
     self.loadData()
 
@@ -146,6 +165,9 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
   @pyqtSlot()
   def mapChanged(self):
     if self.cmbMaps.count() != 0:
+      # clearing old data
+      for detector in self.detectors:
+        detector.delete()
       # creating session
       session=db.Session()
 
@@ -171,9 +193,24 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
       # setting pixmap
       self.lblGraphic.setPixmap(pixmap)
 
-      self.detectors=currMap.detectors
-      self.outs=currMap.outs
-      self.zones=currMap.zones
+#       self.detectors=currMap.detectors
+#       self.outs=currMap.outs
+#       self.zones=currMap.zones
+
+      # have to hide main graphic map. Adding elements to visible label as
+      # parent don't work. Strange thing...
+      self.lblGraphic.setVisible(False)
+
+      #adding detectors to map
+      for detector in currMap.detectors:
+        detectorPoint=self.__DetectorPoint(detector)
+        detectorPoint.setParent(self.lblGraphic)
+        detectorPoint.move(detector.pointX*self.lblGraphic.width()/1000,
+                           detector.pointY*self.lblGraphic.height()/1000)
+        self.detectors.append(detectorPoint)
+
+      # restoring main graphic
+      self.lblGraphic.setVisible(True)
 
       session.close()
 
@@ -261,7 +298,7 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
       session.commit()
       session.close()
 
-      self.outs.append(outPoint)
+      self.mapChanged()
 
     elif type(data) == db.Zone:
 
@@ -280,7 +317,7 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
       session.commit()
       session.close()
 
-      self.zones.append(zonePoint)
+      self.mapChanged()
 
 #------------------------------------------------------------- repaintMapGraphic
   def repaintMapGraphic(self, event):
@@ -304,6 +341,10 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
 
     qp.end()
 
+#-------------------------------------------------------------- resizeMapGraphic
+  def resizeMapGraphic(self, event):
+    QtGui.QLabel.resizeEvent(self.lblGraphic, event)
+    self.mapChanged()
 #---------------------------------------------------------------------- loadData
   def loadData(self):
     """Loading all data from database into form"""
