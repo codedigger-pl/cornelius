@@ -214,7 +214,7 @@ class Out(Base):
   # in which system is this out
   system=Column(Integer, ForeignKey('integra.id'))
 
-#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------ 
 class DetectorPoint(Base):
   """Cennecting Detectors from system to map with some point
 
@@ -233,19 +233,28 @@ class DetectorPoint(Base):
   map=Column(Integer, ForeignKey('maps.id'))
 
 class ZonePoint(Base):
+  """Base zone point on the map"""
+  __tablename__='zonePoints'
+  id=Column(Integer, primary_key=True)
+  
+  x=Column(Integer)
+  y=Column(Integer)
+  
+  zoneID=Column(Integer, ForeignKey('zonesAreas.id'))
+
+class ZoneArea(Base):
   """Connecting Zones from system to map with some points
 
   relations:
       ManyToOne with Zone
       ManyToOne from Map"""
-  __tablename__='zonePoints'
+  __tablename__='zonesAreas'
   id=Column(Integer, primary_key=True)
-
-  pointsX=Column(ARRAY(Integer))
-  pointsY=Column(ARRAY(Integer))
 
   zoneID=Column(Integer, ForeignKey('zones.id'))
   zone=relationship('Zone')
+  
+  points=relationship('ZonePoint')
 
   map=Column(Integer, ForeignKey('maps.id'))
 
@@ -280,7 +289,7 @@ class Map(Base):
   graphic=Column(LargeBinary)
 
   detectors=relationship('DetectorPoint')
-  zones=relationship('ZonePoint')
+  zones=relationship('ZoneArea')
   outs=relationship('OutPoint')
 #------------------------------------------------------------------------------
 

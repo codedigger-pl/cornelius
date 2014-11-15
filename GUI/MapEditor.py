@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from copy import copy
 
 ###############################################################################
 # MapEditor.py
@@ -32,11 +33,15 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
   outs=[]
   zones=[]
 
-  #private class classes
+#------------------------------------------------------------------------------
+# private class
+#
+# Base moveable point on map
+#------------------------------------------------------------------------------
   class __MoveablePoint(QtGui.QLabel):
     """Moveable point on map. It can move by mouse. Base class for other
     map editor elements"""
-    def __init__(self, element):
+    def __init__(self, element=None):
       QtGui.QLabel.__init__(self)
       self.isMouseKeyHolding=False
       self.element=element
@@ -49,25 +54,39 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
         self.__offset=event.pos()
 
     def mouseReleaseEvent(self, event):
-      """Stop moving"""
+      """Stop moving and eventualy deleting element from database. Deleting is
+      made by moving element out of the map."""
       self.isMouseKeyHolding=False
 
-      session=db.Session()
-      session.add(self.element)
-      self.element.pointX=self.geometry().x()/self.parent().width()*1000
-      self.element.pointY=self.geometry().y()/self.parent().height()*1000
-      print(self.element.pointX)
-      print(self.element.pointY)
-      session.commit()
-      session.close()
+      # if we are connected with database
+      if self.element:
+        session=db.Session()
+        session.add(self.element)
+        self.element.pointX=self.geometry().x()/self.parent().width()*1000
+        self.element.pointY=self.geometry().y()/self.parent().height()*1000
+
+        # check, if element is out of range. If yes, delete it.
+        if self.element.pointX < 0 or \
+           self.element.pointY < 0 or \
+           self.element.pointX > 1000 or \
+           self.element.pointY > 1000: session.delete(self.element)
+
+        session.commit()
+        session.close()
 
     def mouseMoveEvent(self, event):
       """Moving element, while mouse LeftButton is pressed"""
       if self.isMouseKeyHolding:
         self.move(self.mapToParent(event.pos()-self.__offset))
 
+#------------------------------------------------------------------------------
+# private class
+#
+# Moveable detector point on map
+#------------------------------------------------------------------------------
   class __DetectorPoint(__MoveablePoint):
     def paintEvent(self, event):
+      """Redefinition paint event: paintint circle"""
       QtGui.QLabel.paintEvent(self, event)
       qp = QtGui.QPainter()
       qp.begin(self)
@@ -80,6 +99,117 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
       qp.drawEllipse(0,0,10,10)
 
       qp.end()
+
+#------------------------------------------------------------------------------
+# private class
+#
+# Moveable out on map
+#------------------------------------------------------------------------------
+  class __OutPoint(__MoveablePoint):
+    def paintEvent(self, event):
+      """Redefinition point event: paint rect"""
+      QtGui.QLabel.paintEvent(self, event)
+      qp = QtGui.QPainter()
+      qp.begin(self)
+
+      qp.setRenderHint(QtGui.QPainter.Antialiasing)
+      qp.setPen(QtCore.Qt.black)
+      qp.setBrush(QtCore.Qt.Dense5Pattern)
+
+      qp.setBrush(QtCore.Qt.blue)
+      qp.drawRect(0, 0, 10, 10)
+
+      qp.end()
+
+#------------------------------------------------------------------------------
+# private class
+#
+# Moveable zone on map
+#------------------------------------------------------------------------------
+  class __ZonePoint(__MoveablePoint):
+    def paintEvent(self, event):
+      """Redefinition point event: paint rect"""
+      QtGui.QLabel.paintEvent(self, event)
+      qp = QtGui.QPainter()
+      qp.begin(self)
+
+      qp.setRenderHint(QtGui.QPainter.Antialiasing)
+      qp.setPen(QtCore.Qt.black)
+      qp.setBrush(QtCore.Qt.Dense5Pattern)
+
+      qp.setBrush(QtCore.Qt.yellow)
+      qp.drawEllipse(0, 0, 6, 6)
+
+      qp.end()
+
+  class __ZoneArea(QtGui.QWidget):
+    def __init__(self, element=None):
+      QtGui.QWidget.__init__(self)
+      self.isMouseKeyHolding=False
+      self.element=element
+      self.__offset=0
+#       self.points=[]
+
+    def mousePressEvent(self, event):
+      """Start moving"""
+      if event.buttons() == QtCore.Qt.LeftButton:
+        self.isMouseKeyHolding=True
+        self.__offset=event.pos()
+#
+#     def mouseReleaseEvent(self, event):
+#       """Stop moving and eventualy deleting element from database. Deleting is
+#       made by moving element out of the map."""
+#       self.isMouseKeyHolding=False
+#
+#       session=db.Session()
+#       session.add(self.element)
+#       self.points=[]
+#       self.element.pointX=self.geometry().x()/self.parent().width()*1000
+#       self.element.pointY=self.geometry().y()/self.parent().height()*1000
+#
+#       # check, if element is out of range. If yes, delete it.
+#       if self.element.pointX < 0 or \
+#          self.element.pointY < 0 or \
+#          self.element.pointX > 1000 or \
+#          self.element.pointY > 1000: session.delete(self.element)
+#
+#       session.commit()
+#       session.close()
+#
+    def mouseMoveEvent(self, event):
+      """Moving element, while mouse LeftButton is pressed"""
+      if self.isMouseKeyHolding:
+#         self.move(self.mapToParent(event.pos()-self.__offset))
+        for zonePoint in self.element.points:
+          delta=zonePoint.pos()-self.pos()
+#           deltaX=event.pos()-zonePoint.pos()
+#           print(delta)
+#           zonePoint.move(self.mapToParent(event.pos()+delta))
+          
+
+      self.update()
+
+    def paintEvent(self, event):
+      """Redefinition point event: paint rect"""
+      QtGui.QWidget.paintEvent(self, event)
+      qp = QtGui.QPainter()
+      qp.begin(self)
+
+      qp.setRenderHint(QtGui.QPainter.Antialiasing)
+      qp.setPen(QtCore.Qt.black)
+      brush=QtGui.QBrush(QtCore.Qt.SolidPattern)
+      brush.setColor(QtGui.QColor(0,0,255,100))
+      qp.setBrush(brush)
+
+      points=[]
+      for point in self.element.points:
+        points.append(QtCore.QPoint(point.x+3, point.y+3))
+
+      qp.drawPolygon(*points)
+
+      qp.end()
+
+      self.parent().update()
 
 #---------------------------------------------------------------------- __init__
   def __init__(self):
@@ -95,15 +225,9 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
 
     self.systemList.itemDoubleClicked.connect(self.systemListDbClicked)
 
-#     self.lblGraphic.paintEvent=self.repaintMapGraphic
     self.lblGraphic.resizeEvent=self.resizeMapGraphic
 
     self.loadData()
-
-#     test.raise_()
-#     detector=QtGui.QLabel(self)
-#     detector.setText('det')
-#     detector.setGeometry(250, 100, 30, 30)
 
 #----------------------------------------------------------------- showHidePanel
   @pyqtSlot()
@@ -165,9 +289,7 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
   @pyqtSlot()
   def mapChanged(self):
     if self.cmbMaps.count() != 0:
-      # clearing old data
-      for detector in self.detectors:
-        detector.delete()
+
       # creating session
       session=db.Session()
 
@@ -193,13 +315,29 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
       # setting pixmap
       self.lblGraphic.setPixmap(pixmap)
 
-#       self.detectors=currMap.detectors
-#       self.outs=currMap.outs
-#       self.zones=currMap.zones
-
       # have to hide main graphic map. Adding elements to visible label as
       # parent don't work. Strange thing...
       self.lblGraphic.setVisible(False)
+
+      # clearing old data
+      for detector in self.detectors:
+        detector.deleteLater()
+        detector=None
+      self.detectors=[]
+
+      for out in self.outs:
+        out.deleteLater()
+        out=None
+      self.outs=[]
+
+      for zone in self.zones:
+        zone.deleteLater()
+        zone=None
+      self.zones=[]
+
+
+      self.lblGraphic.update()
+
 
       #adding detectors to map
       for detector in currMap.detectors:
@@ -208,6 +346,29 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
         detectorPoint.move(detector.pointX*self.lblGraphic.width()/1000,
                            detector.pointY*self.lblGraphic.height()/1000)
         self.detectors.append(detectorPoint)
+
+      # edding outs to map
+      for out in currMap.outs:
+        outPoint=self.__OutPoint(out)
+        outPoint.setParent(self.lblGraphic)
+        outPoint.move(out.pointX*self.lblGraphic.width()/1000,
+                      out.pointY*self.lblGraphic.height()/1000)
+        self.outs.append(outPoint)
+
+      # adding zones to map
+      for zone in currMap.zones:
+        zoneArea=self.__ZoneArea(zone)
+        zoneArea.setParent(self.lblGraphic)
+        zoneArea.lower()
+        for zonePoint in zone.points:
+          zonePoint=self.__ZonePoint()
+          zonePoint.setParent(zoneArea)
+          zonePoint.move(zonePoint*self.lblGraphic.width()/1000,
+                         zonePoint*self.lblGraphic.height()/1000)
+          zoneArea.points.append(zonePoint)
+
+        self.zones.append(zoneArea)
+
 
       # restoring main graphic
       self.lblGraphic.setVisible(True)
@@ -305,15 +466,36 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
       # creating session
       session=db.Session()
 
-      # creating zonePoint with data from given variable
-      zonePoint=db.ZonePoint()
-      zonePoint.detector=data
-      zonePoint.detectorID=data.id
-      zonePoint.pointX=10
-      zonePoint.pointY=10
-      zonePoint.map=self.cmbMaps.itemData(self.cmbMaps.currentIndex(),
-                                          role=QtCore.Qt.UserRole)
-      session.add(zonePoint)
+      # creating zoneArea with data from given variable
+      zoneArea=db.ZoneArea()
+      zoneArea.map=self.cmbMaps.itemData(self.cmbMaps.currentIndex(),
+                                         role=QtCore.Qt.UserRole)
+      session.add(zoneArea)
+      
+      zonePoint1=db.ZonePoint()
+      zonePoint1.x=10
+      zonePoint1.y=10
+      zonePoint1.zoneID=zoneArea.id
+      session.add(zonePoint1)
+      
+      zonePoint2=db.ZonePoint()
+      zonePoint2.x=10
+      zonePoint2.y=100
+      zonePoint2.zoneID=zoneArea.id
+      session.add(zonePoint2)
+      
+      zonePoint3=db.ZonePoint()
+      zonePoint3.x=100
+      zonePoint3.y=100
+      zonePoint3.zoneID=zoneArea.id
+      session.add(zonePoint3)
+      
+      zonePoint4=db.ZonePoint()
+      zonePoint4.x=100
+      zonePoint4.y=10
+      zonePoint4.zoneID=zoneArea.id
+      session.add(zonePoint4)
+      
       session.commit()
       session.close()
 
@@ -324,6 +506,7 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
     """Rewrited paint event from GtGui.QLabel. Painting any detector, out and
     zone on the map. Given points are proportial to 1000.
     Example: 10 is 10/1000=1/100=1% of pixels"""
+    #TODO: delete later
     QtGui.QLabel.paintEvent(self.lblGraphic, event)
     qp = QtGui.QPainter()
     qp.begin(self.lblGraphic)
@@ -344,7 +527,46 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
 #-------------------------------------------------------------- resizeMapGraphic
   def resizeMapGraphic(self, event):
     QtGui.QLabel.resizeEvent(self.lblGraphic, event)
-    self.mapChanged()
+#     for zone in self.zones: zone.setGeometry(self.lblGraphic.geometry())
+    self.replaceAllElements()
+
+#------------------------------------------------------------ replaceAllElements
+  def replaceAllElements(self):
+    """Wfter resizing window (lblGrapgic), replace all elements to their
+    coordinates"""
+
+    # making new session
+    session=db.Session()
+
+    # replacing all detectors
+    # BTW: it is little silly to make database session, adding element to it
+    # and only read coordinates... Try to fix this later
+    #TODO: read up
+    for detector in self.detectors:
+      # little lazy fixing...
+      try:
+        session.add(detector.element)
+      except: pass
+      detector.move(int(detector.element.pointX*self.lblGraphic.width()/1000),
+                    int(detector.element.pointY*self.lblGraphic.height()/1000))
+
+    for out in self.outs:
+      try:
+        session.add(out.element)
+      except: pass
+      out.move(int(out.element.pointX*self.lblGraphic.width()/1000),
+               int(out.element.pointY*self.lblGraphic.height()/1000))
+
+    for zone in self.zones:
+      try:
+        session.add(zone.element)
+      except: pass
+
+      for i, zonePoint in enumerate(zone.points):
+        zonePoint.move(zone.element.pointsX[i]*self.lblGraphic.width()/1000,
+                       zone.element.pointsY[i]*self.lblGraphic.height()/1000)
+
+    session.close()
 #---------------------------------------------------------------------- loadData
   def loadData(self):
     """Loading all data from database into form"""
