@@ -23,6 +23,7 @@ from sqlalchemy.orm import sessionmaker, relationship, backref
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.ext.declarative import declarative_base
 import bcrypt
+from statics import statics
 
 if __name__=='__main__': import settings
 else:  from db import settings
@@ -30,6 +31,7 @@ else:  from db import settings
 # Some base database settings
 engine=create_engine(settings.db_string, echo=False)
 Session=sessionmaker(bind=engine)
+statics.dbSession=Session()
 
 Base=declarative_base()
 
@@ -214,7 +216,7 @@ class Out(Base):
   # in which system is this out
   system=Column(Integer, ForeignKey('integra.id'))
 
-#------------------------------------------------------------------------------ 
+#------------------------------------------------------------------------------
 class DetectorPoint(Base):
   """Cennecting Detectors from system to map with some point
 
@@ -236,10 +238,11 @@ class ZonePoint(Base):
   """Base zone point on the map"""
   __tablename__='zonePoints'
   id=Column(Integer, primary_key=True)
-  
-  x=Column(Integer)
-  y=Column(Integer)
-  
+
+  pointX=Column(Integer)
+  pointY=Column(Integer)
+  pointNumber=Column(Integer)
+
   zoneID=Column(Integer, ForeignKey('zonesAreas.id'))
 
 class ZoneArea(Base):
@@ -253,7 +256,7 @@ class ZoneArea(Base):
 
   zoneID=Column(Integer, ForeignKey('zones.id'))
   zone=relationship('Zone')
-  
+
   points=relationship('ZonePoint')
 
   map=Column(Integer, ForeignKey('maps.id'))

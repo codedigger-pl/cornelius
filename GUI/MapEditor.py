@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from copy import copy
 
 ###############################################################################
 # MapEditor.py
@@ -19,9 +18,10 @@ from copy import copy
 MAPEDITOR_PY_VERSION=(0,0,1)
 
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import pyqtSlot
+from PyQt4.QtCore import pyqtSlot, pyqtSignal
 from QtD.MapEditor import Ui_MapEditor
 from db import db
+from statics import statics
 
 class MapEditor(Ui_MapEditor, QtGui.QWidget):
   """Map editor panel
@@ -33,19 +33,22 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
   outs=[]
   zones=[]
 
-#------------------------------------------------------------------------------
-# private class
-#
-# Base moveable point on map
-#------------------------------------------------------------------------------
   class __MoveablePoint(QtGui.QLabel):
-    """Moveable point on map. It can move by mouse. Base class for other
+    """Private class
+
+    Moveable point on map. It can move by mouse. Base class for other
     map editor elements"""
+
+    # Signals from class
+    hasBeenDeleted=pyqtSignal()
+
     def __init__(self, element=None):
       QtGui.QLabel.__init__(self)
       self.isMouseKeyHolding=False
       self.element=element
       self.__offset=0
+
+      self.session=statics.dbSession
 
     def mousePressEvent(self, event):
       """Start moving"""
@@ -56,35 +59,35 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
     def mouseReleaseEvent(self, event):
       """Stop moving and eventualy deleting element from database. Deleting is
       made by moving element out of the map."""
+
       self.isMouseKeyHolding=False
 
       # if we are connected with database
       if self.element:
-        session=db.Session()
-        session.add(self.element)
         self.element.pointX=self.geometry().x()/self.parent().width()*1000
         self.element.pointY=self.geometry().y()/self.parent().height()*1000
+        self.session.commit()
 
         # check, if element is out of range. If yes, delete it.
         if self.element.pointX < 0 or \
            self.element.pointY < 0 or \
            self.element.pointX > 1000 or \
-           self.element.pointY > 1000: session.delete(self.element)
+           self.element.pointY > 1000:
+          self.session.delete(self.element)
+          self.session.commit()
 
-        session.commit()
-        session.close()
+          self.hasBeenDeleted.emit()
 
     def mouseMoveEvent(self, event):
       """Moving element, while mouse LeftButton is pressed"""
       if self.isMouseKeyHolding:
         self.move(self.mapToParent(event.pos()-self.__offset))
 
-#------------------------------------------------------------------------------
-# private class
-#
-# Moveable detector point on map
-#------------------------------------------------------------------------------
+
   class __DetectorPoint(__MoveablePoint):
+    """ Private class
+    Moveable detector point on map"""
+
     def paintEvent(self, event):
       """Redefinition paint event: paintint circle"""
       QtGui.QLabel.paintEvent(self, event)
@@ -100,12 +103,10 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
 
       qp.end()
 
-#------------------------------------------------------------------------------
-# private class
-#
-# Moveable out on map
-#------------------------------------------------------------------------------
   class __OutPoint(__MoveablePoint):
+    """ Private class
+    Moveable out point on map"""
+
     def paintEvent(self, event):
       """Redefinition point event: paint rect"""
       QtGui.QLabel.paintEvent(self, event)
@@ -121,12 +122,13 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
 
       qp.end()
 
-#------------------------------------------------------------------------------
-# private class
-#
-# Moveable zone on map
-#------------------------------------------------------------------------------
   class __ZonePoint(__MoveablePoint):
+    """ Private class
+    Moveable zone corner point on map"""
+
+    # signals from class
+    pointAdded=pyqtSignal()
+
     def paintEvent(self, event):
       """Redefinition point event: paint rect"""
       QtGui.QLabel.paintEvent(self, event)
@@ -142,19 +144,43 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
 
       qp.end()
 
+    def mouseDoubleClickEvent(self, event):
+      prevNumber=self.element.pointNumber
+
+      nextZonePoints=self.session.query(db.ZonePoint).\
+                                  filter(db.ZonePoint.zoneID == self.element.zoneID).\
+                                  filter(db.ZonePoint.pointNumber >= self.element.pointNumber).\
+                                  all()
+      for zonePoint in nextZonePoints: zonePoint.pointNumber+=1
+
+      newZonePoint=db.ZonePoint()
+      newZonePoint.pointX=self.element.pointX
+      newZonePoint.pointY=self.element.pointY
+      newZonePoint.zoneID=self.element.zoneID
+      newZonePoint.pointNumber=prevNumber
+
+      self.session.add(newZonePoint)
+      self.session.commit()
+
+      self.pointAdded.emit()
+
   class __ZoneArea(QtGui.QWidget):
     def __init__(self, element=None):
       QtGui.QWidget.__init__(self)
       self.isMouseKeyHolding=False
       self.element=element
       self.__offset=0
-#       self.points=[]
+      self.points={}
+      self.session=statics.dbSession
 
-    def mousePressEvent(self, event):
-      """Start moving"""
-      if event.buttons() == QtCore.Qt.LeftButton:
-        self.isMouseKeyHolding=True
-        self.__offset=event.pos()
+# Why move whole zone? But, maybe somebody someday want to do this.
+# After little fixing should work
+#     def mousePressEvent(self, event):
+#       """Start moving"""
+#       if event.buttons() == QtCore.Qt.LeftButton:
+#         self.isMouseKeyHolding=True
+#         self.__offset=event.pos()
+#         for zonePoint in self.points: zonePoint.mousePressEvent(event)
 #
 #     def mouseReleaseEvent(self, event):
 #       """Stop moving and eventualy deleting element from database. Deleting is
@@ -176,18 +202,13 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
 #       session.commit()
 #       session.close()
 #
-    def mouseMoveEvent(self, event):
-      """Moving element, while mouse LeftButton is pressed"""
-      if self.isMouseKeyHolding:
-#         self.move(self.mapToParent(event.pos()-self.__offset))
-        for zonePoint in self.element.points:
-          delta=zonePoint.pos()-self.pos()
-#           deltaX=event.pos()-zonePoint.pos()
-#           print(delta)
-#           zonePoint.move(self.mapToParent(event.pos()+delta))
-          
-
-      self.update()
+#     def mouseMoveEvent(self, event):
+#       """Moving element, while mouse LeftButton is pressed"""
+#       if self.isMouseKeyHolding:
+# #         self.move(self.mapToParent(event.pos()-self.__offset))
+#         for zonePoint in self.points:
+#           zonePoint.mouseMoveEvent(event)
+#         self.update()
 
     def paintEvent(self, event):
       """Redefinition point event: paint rect"""
@@ -202,8 +223,9 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
       qp.setBrush(brush)
 
       points=[]
-      for point in self.element.points:
-        points.append(QtCore.QPoint(point.x+3, point.y+3))
+      for point in self.points:
+        points.append(QtCore.QPoint(self.points[point].x()+3,
+                                    self.points[point].y()+3))
 
       qp.drawPolygon(*points)
 
@@ -211,8 +233,18 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
 
       self.parent().update()
 
+    def changedPointsNumber(self):
+      """Deleting whole zone, if there is less than 3 corners"""
+      if len(self.element.points) < 3:
+        for point in self.element.points: self.session.delete(point)
+        self.session.delete(self.element)
+        self.session.commit()
+
 #---------------------------------------------------------------------- __init__
   def __init__(self):
+
+    self.session=statics.dbSession
+
     super(MapEditor, self).__init__()
     self.setupUi(self)
 
@@ -251,12 +283,10 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
     dialog.setWindowTitle('Nowa mapa')
 
     if dialog.exec_():
-      session=db.Session()
       newMap=db.Map()
       newMap.name=dialog.textValue()
-      session.add(newMap)
-      session.commit()
-      session.close()
+      self.session.add(newMap)
+      self.session.commit()
       self.loadData()
 
 #-------------------------------------------------------- mapDeleteButtonClicked
@@ -274,15 +304,14 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
 
     # If confirmed
     if dialog.exec_()==QtGui.QMessageBox.Yes:
-      session=db.Session()
-      deleteMap=session.\
+      deleteMap=self.session.\
                   query(db.Map).\
                   filter(db.Map.id==self.cmbMaps.itemData(self.cmbMaps.currentIndex(),
                                                           role=QtCore.Qt.UserRole)).\
                   one()
-      session.delete(deleteMap)
-      session.commit()
-      session.close()
+      self.session.delete(deleteMap)
+      self.session.commit()
+
       self.loadData()
 
 #-------------------------------------------------------------------- mapChanged
@@ -290,11 +319,8 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
   def mapChanged(self):
     if self.cmbMaps.count() != 0:
 
-      # creating session
-      session=db.Session()
-
       # getting current selected map from database
-      currMap=session.query(db.Map).\
+      currMap=self.session.query(db.Map).\
               filter(db.Map.id==self.cmbMaps.itemData(self.cmbMaps.currentIndex(),
                                                       role=QtCore.Qt.UserRole)).\
               one()
@@ -331,6 +357,9 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
       self.outs=[]
 
       for zone in self.zones:
+        for zonePoint in zone.points:
+          zone.points[zonePoint].deleteLater()
+          zone.points[zonePoint]=None
         zone.deleteLater()
         zone=None
       self.zones=[]
@@ -359,21 +388,23 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
       for zone in currMap.zones:
         zoneArea=self.__ZoneArea(zone)
         zoneArea.setParent(self.lblGraphic)
+        zoneArea.setGeometry(0, 0, self.lblGraphic.width(), self.lblGraphic.height())
         zoneArea.lower()
         for zonePoint in zone.points:
-          zonePoint=self.__ZonePoint()
-          zonePoint.setParent(zoneArea)
-          zonePoint.move(zonePoint*self.lblGraphic.width()/1000,
-                         zonePoint*self.lblGraphic.height()/1000)
-          zoneArea.points.append(zonePoint)
+          zonePointG=self.__ZonePoint(zonePoint)
+          zonePointG.setParent(self.lblGraphic)
+          zonePointG.move(zonePoint.pointX*self.lblGraphic.width()/1000,
+                          zonePoint.pointY*self.lblGraphic.height()/1000)
+          zoneArea.points[zonePoint.pointNumber]=zonePointG
+          zonePointG.hasBeenDeleted.connect(zoneArea.changedPointsNumber)
+          zonePointG.hasBeenDeleted.connect(self.mapChanged)
+          zonePointG.pointAdded.connect(self.mapChanged)
 
         self.zones.append(zoneArea)
 
 
       # restoring main graphic
       self.lblGraphic.setVisible(True)
-
-      session.close()
 
 #------------------------------------------------------ loadGraphicButtonClicked
   def loadGraphicButtonClicked(self):
@@ -387,12 +418,11 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
 
       # saving graphic in database
       #TODO: save scaled pixmap?
-      session=db.Session()
-      dbMap=session.query(db.Map).\
+      dbMap=self.session.query(db.Map).\
                     filter(db.Map.id==self.cmbMaps.itemData(self.cmbMaps.currentIndex(),
                                                             role=QtCore.Qt.UserRole)).\
                     one()
-      session.add(dbMap)
+      self.session.add(dbMap)
 
       # if loaded pixmap is larger than image container
       if pix.height() > self.lblGraphic.height() or \
@@ -413,20 +443,16 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
 
       # saving graphic's data to databse
       dbMap.graphic=byteArray.data()
-      session.commit()
-      session.close()
+      self.session.commit()
 
 #----------------------------------------------------------- systemListDbClicked
   @pyqtSlot(int, int)
   def systemListDbClicked(self, element, _):
     data=element.data(0, QtCore.Qt.UserRole)
+    self.session.add(data)
 
     # we got Detector type?
     if type(data) == db.Detector:
-
-      # creating session
-      session=db.Session()
-      session.add(data)
 
       # creating detectorPoint with data from given variable
       detectorPoint=db.DetectorPoint()
@@ -436,16 +462,13 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
       detectorPoint.pointY=10
       detectorPoint.map=self.cmbMaps.itemData(self.cmbMaps.currentIndex(),
                                               role=QtCore.Qt.UserRole)
-      session.add(detectorPoint)
-      session.commit()
-      session.close()
+      self.session.add(detectorPoint)
+      self.session.commit()
+      self.session.close()
 
       self.mapChanged()
 
     elif type(data) == db.Out:
-
-      # creating session
-      session=db.Session()
 
       # creating outPoint with data from given variable
       outPoint=db.OutPoint()
@@ -455,49 +478,51 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
       outPoint.pointY=10
       outPoint.map=self.cmbMaps.itemData(self.cmbMaps.currentIndex(),
                                          role=QtCore.Qt.UserRole)
-      session.add(outPoint)
-      session.commit()
-      session.close()
+      self.session.add(outPoint)
+      self.session.commit()
+      self.session.close()
 
       self.mapChanged()
 
     elif type(data) == db.Zone:
 
-      # creating session
-      session=db.Session()
-
       # creating zoneArea with data from given variable
       zoneArea=db.ZoneArea()
       zoneArea.map=self.cmbMaps.itemData(self.cmbMaps.currentIndex(),
                                          role=QtCore.Qt.UserRole)
-      session.add(zoneArea)
-      
+      self.session.add(zoneArea)
+
+      self.session.commit()
+
       zonePoint1=db.ZonePoint()
-      zonePoint1.x=10
-      zonePoint1.y=10
+      zonePoint1.pointX=10
+      zonePoint1.pointY=10
+      zonePoint1.pointNumber=0
       zonePoint1.zoneID=zoneArea.id
-      session.add(zonePoint1)
-      
+      self.session.add(zonePoint1)
+
       zonePoint2=db.ZonePoint()
-      zonePoint2.x=10
-      zonePoint2.y=100
+      zonePoint2.pointX=10
+      zonePoint2.pointY=100
+      zonePoint2.pointNumber=1
       zonePoint2.zoneID=zoneArea.id
-      session.add(zonePoint2)
-      
+      self.session.add(zonePoint2)
+
       zonePoint3=db.ZonePoint()
-      zonePoint3.x=100
-      zonePoint3.y=100
+      zonePoint3.pointX=100
+      zonePoint3.pointY=100
+      zonePoint3.pointNumber=2
       zonePoint3.zoneID=zoneArea.id
-      session.add(zonePoint3)
-      
+      self.session.add(zonePoint3)
+
       zonePoint4=db.ZonePoint()
-      zonePoint4.x=100
-      zonePoint4.y=10
+      zonePoint4.pointX=100
+      zonePoint4.pointY=10
+      zonePoint4.pointNumber=3
       zonePoint4.zoneID=zoneArea.id
-      session.add(zonePoint4)
-      
-      session.commit()
-      session.close()
+      self.session.add(zonePoint4)
+
+      self.session.commit()
 
       self.mapChanged()
 
@@ -527,7 +552,8 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
 #-------------------------------------------------------------- resizeMapGraphic
   def resizeMapGraphic(self, event):
     QtGui.QLabel.resizeEvent(self.lblGraphic, event)
-#     for zone in self.zones: zone.setGeometry(self.lblGraphic.geometry())
+    for zone in self.zones:
+      zone.setGeometry(0, 0, self.lblGraphic.width(), self.lblGraphic.height())
     self.replaceAllElements()
 
 #------------------------------------------------------------ replaceAllElements
@@ -535,53 +561,46 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
     """Wfter resizing window (lblGrapgic), replace all elements to their
     coordinates"""
 
-    # making new session
-    session=db.Session()
-
     # replacing all detectors
-    # BTW: it is little silly to make database session, adding element to it
-    # and only read coordinates... Try to fix this later
-    #TODO: read up
     for detector in self.detectors:
       # little lazy fixing...
-      try:
-        session.add(detector.element)
-      except: pass
+#       try:
+#         self.session.add(detector.element)
+#       except: qDebug('DB: trying add prevously added detector '+str(detector.element)+' ')
+
       detector.move(int(detector.element.pointX*self.lblGraphic.width()/1000),
                     int(detector.element.pointY*self.lblGraphic.height()/1000))
 
     for out in self.outs:
-      try:
-        session.add(out.element)
-      except: pass
+#       try:
+#         self.session.add(out.element)
+#       except: pass
       out.move(int(out.element.pointX*self.lblGraphic.width()/1000),
                int(out.element.pointY*self.lblGraphic.height()/1000))
 
     for zone in self.zones:
-      try:
-        session.add(zone.element)
-      except: pass
+#       try:
+#         self.session.add(zone.element)
+#       except: qDebug('DB: Trying adding prevously added zone '+str(zone))
 
-      for i, zonePoint in enumerate(zone.points):
-        zonePoint.move(zone.element.pointsX[i]*self.lblGraphic.width()/1000,
-                       zone.element.pointsY[i]*self.lblGraphic.height()/1000)
+      for zonePoint in zone.points:
+        zone.points[zonePoint].move(zone.points[zonePoint].element.pointX*self.lblGraphic.width()/1000,
+                                    zone.points[zonePoint].element.pointY*self.lblGraphic.height()/1000)
 
-    session.close()
 #---------------------------------------------------------------------- loadData
   def loadData(self):
     """Loading all data from database into form"""
-    session=db.Session()
 
     # clearing previous data
     self.cmbMaps.clear()
     self.systemList.clear()
 
     # reading saved maps from database and add to map selector (ComboBox)
-    for (mapID, mapName) in session.query(db.Map.id, db.Map.name).all():
+    for (mapID, mapName) in self.session.query(db.Map.id, db.Map.name).all():
       self.cmbMaps.addItem(mapName, userData=mapID)
 
     # reading integrated systems
-    for integra in session.query(db.Integra).all():
+    for integra in self.session.query(db.Integra).all():
       systemItem=QtGui.QTreeWidgetItem(self.systemList, [integra.name])
       systemItem.setData(0, QtCore.Qt.UserRole, integra)
 
@@ -604,13 +623,20 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
         zoneItem=QtGui.QTreeWidgetItem(zonesList, [zone.name])
         zoneItem.setData(0, QtCore.Qt.UserRole, zone)
 
-    session.close()
-
 #-------------------------------------------------------------- main entry point
 if __name__=='__main__':
   import sys
+  # creating new database session
+  session=db.Session()
+  statics.dbSession=session
+
+  # starting application
   app = QtGui.QApplication(sys.argv)
   mw=QtGui.QMainWindow()
   mw.setCentralWidget(MapEditor())
   mw.show()
-  sys.exit(app.exec_())
+  exitCode=app.exec_()
+
+  # closing session and quiting app
+  session.close()
+  sys.exit(exitCode)
