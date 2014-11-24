@@ -1,8 +1,8 @@
-# Aktualnie zalogowany użytkownik programu
+# current logged user
 currentLogedUser=None # db.User
 
 # current database session
-dbSession=None
+dbSession=None # db.Session()
 
 alarmAction=('Wysłano patrol',
              'Wezwano grupę interwencyjną',

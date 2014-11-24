@@ -472,8 +472,8 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
 
       # creating outPoint with data from given variable
       outPoint=db.OutPoint()
-      outPoint.detector=data
-      outPoint.detectorID=data.id
+      outPoint.out=data
+      outPoint.outID=data.id
       outPoint.pointX=10
       outPoint.pointY=10
       outPoint.map=self.cmbMaps.itemData(self.cmbMaps.currentIndex(),
@@ -490,6 +490,9 @@ class MapEditor(Ui_MapEditor, QtGui.QWidget):
       zoneArea=db.ZoneArea()
       zoneArea.map=self.cmbMaps.itemData(self.cmbMaps.currentIndex(),
                                          role=QtCore.Qt.UserRole)
+      zoneArea.zone=data
+      zoneArea.zoneID=data.id
+
       self.session.add(zoneArea)
 
       self.session.commit()

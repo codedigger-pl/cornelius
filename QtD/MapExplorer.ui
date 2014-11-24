@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MapExplorer</class>
+ <widget class="QDockWidget" name="MapExplorer">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>193</width>
+    <height>525</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>193</width>
+    <height>525</height>
+   </size>
+  </property>
+  <property name="allowedAreas">
+   <set>Qt::NoDockWidgetArea</set>
+  </property>
+  <property name="windowTitle">
+   <string>Lista map</string>
+  </property>
+  <widget class="QWidget" name="dockWidgetContents">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QTreeWidget" name="lstMaps">
+      <attribute name="headerVisible">
+       <bool>false</bool>
+      </attribute>
+      <column>
+       <property name="text">
+        <string notr="true">1</string>
+       </property>
+      </column>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btnRefresh">
+      <property name="text">
+       <string>Odśwież</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

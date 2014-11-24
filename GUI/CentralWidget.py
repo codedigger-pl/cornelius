@@ -61,7 +61,7 @@ class Map(QtGui.QLabel):
       elif detector.getAlarmMemory(): qp.setBrush(QtCore.Qt.darkRed)
       elif detector.getActive(): qp.setBrush(QtCore.Qt.green)
       qp.drawEllipse(point, 5, 5)
-      
+
     for out, point in self.outs:
       qp.setBrush(QtCore.Qt.gray)
       # Kolejność pokazywania stanu czuki:
@@ -91,7 +91,7 @@ class CentralWidget(QtGui.QTabWidget):
     self.setMovable(True)
     self.tabCloseRequested.connect(self.closeTab)
     self.tabs=[]
-    
+
     #self.CA.hasZonesChanged.connect(self.signalAlarm)
   """def addPix(self, name, pixmap):
     #Dodanie nowej zakładki wraz z podkładem

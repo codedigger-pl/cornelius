@@ -2,7 +2,6 @@
 
 from PyQt4 import QtGui, QtCore
 from GUI.CentralWidget import CentralWidget, Map
-from GUI.LeftWidget import LeftWidget, Item
 from Satel import integra, dataReader
 from GUI.LoginWindow import LoginWindow
 from GUI.UsersList import UsersList
@@ -11,6 +10,9 @@ from GUI.EventList import EventList
 from GUI.SystemEditor import SystemEditor
 from GUI.DlgUserPasswordChange import DlgUserPasswordChange
 from GUI.MapEditor import MapEditor
+from GUI.MapExplorer import MapExplorer
+from statics import statics
+from db import db
 
 
 class MainWidget(QtGui.QWidget):
@@ -32,83 +34,7 @@ class MainWidget(QtGui.QWidget):
     hLayout=QtGui.QHBoxLayout()
 
     self.centralny=CentralWidget()
-    self.lewyDock=QtGui.QDockWidget()
-    self.lewyDock.setAllowedAreas(QtCore.Qt.NoDockWidgetArea)
-    self.lewy=LeftWidget()
-    self.lewyDock.setWidget(self.lewy)
 
-#     self.userDock=QtGui.QDockWidget()
-#     self.userDock.setAllowedAreas(QtCore.Qt.NoDockWidgetArea)
-#     self.userDockContent=Ui_UsersList()
-#     self.userDockContent.setupUi(self.userDock)
-
-    #Tworzenie mapek dla tablicy synoptycznej
-    self.lewyK836Map=Map(QtGui.QPixmap("../gfx/img/32WOG-logo.png"))
-    for i in range(128):
-      self.lewyK836Map.addDetector(self.CA.getDetector(i), QtCore.QPoint(10+10*i, 10))
-      self.lewyK836Map.addOut(self.CA.getOut(i), QtCore.QPoint(5+10*i, 20))
-    self.lewyK836Map.addZone(self.CA.getZone(0), [QtCore.QPoint(200,200),
-                                                  QtCore.QPoint(200,400),
-                                                  QtCore.QPoint(400,200)])
-
-    self.lewyAll=Item("Wszystkie obiekty")
-    self.lewyAll.setIcon(0, self.__ikona)
-    self.lewy.addTopLevelItem(self.lewyAll)
-    self.lewy.addTopLevelItem(Item(""))
-
-    self.lewyK836=Item("K-836",self.lewyK836Map)
-    self.lewyK836.setIcon(0, self.__ikona)
-    self.lewyK836_B27=Item("Budynek 27")
-    self.lewyK836_B27_Kasa=Item("Kasa")
-    self.lewyK836_B27_ZKMRJ=Item("ZKMRJ")
-    self.lewyK836_B27_KT=Item("Kanc. JW3391")
-    self.lewyK836_B27_WL=Item("Węzeł Łączności")
-    self.lewyK836_B27.addChild(self.lewyK836_B27_Kasa)
-    self.lewyK836_B27.addChild(self.lewyK836_B27_KT)
-    self.lewyK836_B27.addChild(self.lewyK836_B27_ZKMRJ)
-    self.lewyK836_B27.addChild(self.lewyK836_B27_WL)
-    self.lewyK836.addChild(self.lewyK836_B27)
-    self.lewyK836_B74=Item("Budynek 74")
-    self.lewyK836_B74_KT=Item("Kanc. JW5371")
-    self.lewyK836_B74.addChild(self.lewyK836_B74_KT)
-    self.lewyK836.addChild(self.lewyK836_B74)
-    self.lewyK836_B105=Item("Budynek 105")
-    self.lewyK836_B105_parter=Item("Parter")
-    self.lewyK836_B105_1p=Item("1 piętro")
-    self.lewyK836_B105_2p=Item("2 piętro")
-    self.lewyK836_B105_3p=Item("3 piętro")
-    self.lewyK836_B105.addChild(self.lewyK836_B105_parter)
-    self.lewyK836_B105.addChild(self.lewyK836_B105_1p)
-    self.lewyK836_B105.addChild(self.lewyK836_B105_2p)
-    self.lewyK836_B105.addChild(self.lewyK836_B105_3p)
-    self.lewyK836.addChild(self.lewyK836_B105)
-    self.lewyK836_B108=Item("Budynek 108")
-    self.lewyK836_B108_parter=Item("Parter")
-    self.lewyK836_B108_1p=Item("1 piętro")
-    self.lewyK836_B108_2p=Item("2 piętro")
-    self.lewyK836_B108_3p=Item("3 piętro")
-    self.lewyK836_B108.addChild(self.lewyK836_B108_parter)
-    self.lewyK836_B108.addChild(self.lewyK836_B108_1p)
-    self.lewyK836_B108.addChild(self.lewyK836_B108_2p)
-    self.lewyK836_B108.addChild(self.lewyK836_B108_3p)
-    self.lewyK836.addChild(self.lewyK836_B108)
-    self.lewy.addTopLevelItem(self.lewyK836)
-
-    self.lewyK845=Item("K-845")
-    self.lewyK845_B3=Item("Budynek 3")
-    self.lewyK845_B4=Item("Budynek 4")
-    self.lewyK845_B5=Item("Budynek 5")
-    self.lewyK845.addChild(self.lewyK845_B3)
-    self.lewyK845.addChild(self.lewyK845_B4)
-    self.lewyK845.addChild(self.lewyK845_B5)
-    self.lewy.addTopLevelItem(self.lewyK845)
-
-    self.lewy.expandAll()
-
-    #Dodawanie obsługi dwukliku
-    self.lewy.itemDoubleClicked.connect(self.lewyClicked)
-
-    # TODO: Autoscrolling - niby działa.
     self.dolnyLayout=QtGui.QHBoxLayout()
 
     self.dolnyL=QtGui.QTextBrowser()
@@ -128,11 +54,11 @@ class MainWidget(QtGui.QWidget):
     self.dolny.setMaximumHeight(100)
     self.dolny.setLayout(self.dolnyLayout)
 
-    self.gornyPaleta=QtGui.QPalette(QtGui.QColor(255,20,20))
-    self.gorny=QtGui.QPushButton("Potwierdzanie zdarzeń")
-    self.gorny.setPalette(self.gornyPaleta)
-    self.gorny.setMaximumHeight(100)
-    self.gorny.setMinimumHeight(50)
+#     self.gornyPaleta=QtGui.QPalette(QtGui.QColor(255,20,20))
+#     self.gorny=QtGui.QPushButton("Potwierdzanie zdarzeń")
+#     self.gorny.setPalette(self.gornyPaleta)
+#     self.gorny.setMaximumHeight(100)
+#     self.gorny.setMinimumHeight(50)
 
     wc=QtGui.QWidget()
 
@@ -144,12 +70,6 @@ class MainWidget(QtGui.QWidget):
     vLayout.addWidget(self.dolny)
 
     self.setLayout(vLayout)
-
-  def lewyClicked(self, item, index):
-    if item.hasMap():
-      self.appendInfo(">>> Wstawianie mapy "+item.name)
-      self.centralny.addTab(item.getMap(), item.name)
-      self.centralny.setCurrentIndex(self.centralny.count()-1)
 
   def appendInfo(self, info): self.dolnyL.append(info)
 
@@ -163,6 +83,8 @@ class MainWidget(QtGui.QWidget):
 class MainWindow(QtGui.QMainWindow):
   def __init__(self, *args, **kwargs):
     QtGui.QMainWindow.__init__(self, *args, **kwargs)
+
+    self.dbSession=statics.dbSession
 
     self.blueSkin=self.__createBlueSkin()
     self.redSkin=self.__createRedSkin()
@@ -200,10 +122,13 @@ class MainWindow(QtGui.QMainWindow):
 
     self.actionMapy=QtGui.QAction("Pokaż mapy", self)
     self.actionMapy.setShortcut("Ctrl+W")
-    self.actionMapy.triggered.connect(self.showMaps)
+    self.actionMapy.triggered.connect(
+      lambda: self.mapExplorerDock.show() )
 
     self.actionUsersList=QtGui.QAction('Lista użytkowników', self)
-    self.actionUsersList.triggered.connect(self.showUsersList)
+    self.actionUsersList.triggered.connect(
+      lambda: self.userDock.show() or\
+              self.userDock.loadData() ) #self.showUsersList)
 
     # Dialog allowing adding, deleting and modifying integrated systems
     self.actionSystemList=QtGui.QAction('Lista systemów', self)
@@ -233,20 +158,72 @@ class MainWindow(QtGui.QMainWindow):
     self.mainWidget=MainWidget()
     self.setCentralWidget(self.mainWidget)
 
-    self.addDockWidget(QtCore.Qt.NoDockWidgetArea, self.mainWidget.lewyDock);
-    self.mainWidget.lewyDock.setParent(self)
-    self.mainWidget.lewyDock.close()
-
     self.userDock=UsersList()
     self.addDockWidget(QtCore.Qt.NoDockWidgetArea, self.userDock)
     self.userDock.setParent(self)
     self.userDock.close()
+
+    self.mapExplorerDock=MapExplorer()
+    self.addDockWidget(QtCore.Qt.NoDockWidgetArea, self.mapExplorerDock)
+    self.mapExplorerDock.setParent(self)
+    self.mapExplorerDock.close()
+    self.mapExplorerDock.lstMaps.doubleClicked.connect(self.mapExplorerDblClicked)
 
     # Automatic skin changing
     self.mainWidget.eventList.signal_emptyList.connect(
       lambda: self.setPalette(self.blueSkin))
     self.mainWidget.eventList.signal_notEmptyList.connect(
       lambda: self.setPalette(self.redSkin))
+
+    # All detectors, zones, etc
+    # This is little crazy thing: here are connection betwen database ex.
+    # detectors and real detectors
+    self.allSystems={}
+    self.allDetectors={}
+    self.allOuts={}
+    self.allZones={}
+
+    # Reading all Integra systems from database
+    integraSystems=self.dbSession.query(db.Integra).all()
+    for integraSystem in integraSystems:
+      # creating system
+      CA=integra.Integra(name=integraSystem.name,
+                         detectorsNumber=0,
+                         outsNumber=0,
+                         zonesNumber=0)
+
+      # add detectors from database to system
+      for dbDetector in integraSystem.detectors:
+        detector=integra.Detector(dbDetector.name)
+        CA.addDetector(detector)
+
+        # adding key dbDetector <-> systemDetector
+        self.allDetectors[dbDetector]=detector
+
+      # add outs from database to system
+      for dbOut in integraSystem.outs:
+        out=integra.Out(dbOut.name)
+        CA.addOut(out)
+
+        # adding key dbOut <-> systemOut
+        self.allOuts[dbOut]=out
+
+      # add zones from database to system
+      for dbZone in integraSystem.zones:
+        zone=integra.Zone(dbZone.name)
+        CA.addZone(zone)
+
+        # adding key dbZone <-> systemOut
+        self.allZones[dbZone]=zone
+
+      CAReader=dataReader.EthernetDataReader(integraSystem.IP,
+                                             int(integraSystem.port))
+      CAParser=dataReader.DataParser()
+      CAParser.assignPort(CAReader)
+      CAParser.assignCA(CA)
+#       CAParser.start()
+
+      self.allSystems[integraSystem]=CA
 
 #     self.mainWidget.eventList.appendEvent(Event(alarmType=EventType.Panic,
 #                                       zone='Strefa testowa'))
@@ -534,6 +511,39 @@ class MainWindow(QtGui.QMainWindow):
     if self.isFullScreen(): self.showNormal()
     else: self.showFullScreen()
 
+  def mapExplorerDblClicked(self, event):
+    dbMap=self.mapExplorerDock.lstMaps.currentItem().data(0, QtCore.Qt.UserRole)
+
+    self.mainWidget.appendInfo('>>> Wstawianie mapy '+dbMap.name)
+
+    pixmapData=QtCore.QByteArray().fromRawData(dbMap.graphic)
+    pixmap=QtGui.QPixmap()
+    pixmap.loadFromData(pixmapData, format='PNG')
+
+    gfxMap=Map(pixmap)
+    self.mainWidget.centralny.addTab(gfxMap, dbMap.name)
+    self.mainWidget.centralny.setCurrentIndex(self.centralny.count()-1)
+
+    for detector in dbMap.detectors:
+      gfxMap.addDetector(self.allDetectors[detector.detector],
+                         QtCore.QPoint(detector.pointX/1000*gfxMap.width(),
+                                       detector.pointY/1000*gfxMap.height()))
+
+    for out in dbMap.outs:
+      gfxMap.addOut(self.allOuts[out.out],
+                    QtCore.QPoint(out.pointX/1000*gfxMap.width(),
+                                  out.pointY/1000*gfxMap.height()))
+
+    for zone in dbMap.zones:
+      zonePoints={}
+      for zonePoint in zone.points:
+        zonePoints[zonePoint.pointNumber]=QtCore.QPoint(zonePoint.pointX/1000*gfxMap.width(),
+                                                        zonePoint.pointY/1000*gfxMap.height())
+      zonePoints_=[]
+      for z in zonePoints: zonePoints_.append(zonePoints[z])
+      gfxMap.addZone(self.allZones[zone.zone], zonePoints_)
+
+
 #TODO: dziwne, działa po kliknięciu. Ale to i lepiej :)
   def pozycjaKursoraCon(self):
     if self.isPokazPozycjeKursora:
@@ -610,12 +620,8 @@ class MainWindow(QtGui.QMainWindow):
     self.mapa.addOut(self.o1, QtCore.QPoint(135,426))
     self.mainWidget.centralny.addTab(self.mapa, "Legenda")
 
-  def showMaps(self):
-    self.mainWidget.lewyDock.show()
-
-  def showUsersList(self):
-    self.userDock.show()
-    self.userDock.loadData()
+#   def showMaps(self):
+#     self.mainWidget.lewyDock.show()
 
 if __name__ == '__main__':
   import sys

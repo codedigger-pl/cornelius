@@ -421,6 +421,16 @@ class Integra(QtCore.QObject):
   def getZones(self): return self.__zones
   def getZone(self, i): return self.__zones[i]
 
+  """Adding elements to class"""
+  def addDetector(self, detector): self.__detectors.append(detector)
+  def addOut(self, out): self.__outs.append(out)
+  def addZone(self, zone): self.__zones.append(zone)
+
+  """Setting elements to class"""
+  def setDetector(self, index, detector): self.__detectors[index]=detector
+  def setOut(self, index, out): self.__outs[index]=out
+  def setZone(self, index, zone): self.__zones[index]=zone
+
   def __checkBit(self, what, position):
     """Checks, if bit in given position is set. Rather only for testing.
 
