@@ -157,8 +157,8 @@ class MainWindow(QtGui.QMainWindow):
     toolsMenu.addAction(self.actionMapy)
     toolsMenu.addAction(self.actionUserPasswordChange)
 
-    toolsServiceMenu=toolsMenu.addMenu("Serwis")
-    toolsServiceMenu.addAction(self.actionCursorPosition)
+    # don't nedd now. But in future?
+#     toolsServiceMenu=toolsMenu.addMenu("Serwis")
 
     adminMenu=self.menubar.addMenu('Administracja')
     adminMenu.addAction(self.actionUsersList)
