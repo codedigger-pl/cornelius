@@ -105,7 +105,6 @@ class MainWindow(QtGui.QMainWindow):
     self.setPalette(self.blueSkin)
 
     self.menubar = self.menuBar()
-    self.isShowCursorPosition=False
 
     self.statusBar().showMessage("Gotowy")
 
@@ -118,12 +117,6 @@ class MainWindow(QtGui.QMainWindow):
     self.actionFullScreen.setStatusTip("Przełącz na pełny ekran")
     self.actionFullScreen.setShortcut("Ctrl+F")
     self.actionFullScreen.triggered.connect(self.switchFullScreen)
-
-    self.actionCursorPosition=QtGui.QAction("Pokaż pozycję kursora", self)
-    self.actionCursorPosition.setStatusTip("Pokaż pozycję kursora")
-    self.actionCursorPosition.setShortcut("Ctrl+Shift+G")
-    self.actionCursorPosition.setCheckable(True)
-    self.actionCursorPosition.triggered.connect(self.CursorPositionCon)
 
     # Dialog allowing user change his password
     self.actionUserPasswordChange=QtGui.QAction('Zmień hasło', self)
@@ -559,16 +552,6 @@ class MainWindow(QtGui.QMainWindow):
       zonePoints_=[]
       for z in zonePoints: zonePoints_.append(zonePoints[z])
       gfxMap.addZone(self.allZones[zone.zone], zonePoints_)
-
-  def CursorPositionCon(self):
-    if self.isShowCursorPosition:
-      self.mainWidget.centralWidget.currentWidget().mouseMoveEventCon(None)
-      self.isShowCursorPosition=False
-      self.mainWidget.appendInfo(">>> Wyłączono pokazywanie pozycji kursora")
-    else:
-      self.mainWidget.centralWidget.currentWidget().mouseMoveEventCon(self.statusBar())
-      self.isShowCursorPosition=True
-      self.mainWidget.appendInfo(">>> Włączono pokazywanie pozycji kursora. Kliknij, aby zobaczyć")
 
   def showLegend(self):
     self.legendCA=integra.Integra()
