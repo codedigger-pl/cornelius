@@ -1,3 +1,18 @@
+# -*- coding: utf-8 -*-
+
+###############################################################################
+# UsersList.py
+#
+# author: Paweł Surowiec (codedigger)
+# creation date: ?
+# version: 0.0.1
+#
+# Module contains little dock widget. It's allow managing users in Cornelius
+# system.
+###############################################################################
+
+USERSLIST_PY_VERSION=(0,0,1)
+
 from PyQt4 import QtCore, QtGui
 from QtD import UI_UsersList
 from db import db

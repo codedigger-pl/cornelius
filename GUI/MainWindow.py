@@ -1,11 +1,24 @@
 # -*- coding: utf-8 -*-
 
+###############################################################################
+# MainWindow.py
+#
+# author: Paweł Surowiec (codedigger)
+# creation date: ?
+# version: 0.0.1
+#
+# Module contains main widgets. Running this module directly will run base
+# system.
+#
+###############################################################################
+
+MAINWINDOW_PY_VERSION=(0,0,1)
+
 from PyQt4 import QtGui, QtCore
 from GUI.CentralWidget import CentralWidget, Map
 from Satel import integra, dataReader
 from GUI.LoginWindow import LoginWindow
 from GUI.UsersList import UsersList
-from GUI.Event import Event, EventType
 from GUI.EventList import EventList
 from GUI.SystemEditor import SystemEditor
 from GUI.DlgUserPasswordChange import DlgUserPasswordChange
@@ -33,26 +46,26 @@ class MainWidget(QtGui.QWidget):
     vLayout=QtGui.QVBoxLayout()
     hLayout=QtGui.QHBoxLayout()
 
-    self.centralny=CentralWidget()
+    self.centralWidget=CentralWidget()
 
-    self.dolnyLayout=QtGui.QHBoxLayout()
+    self.downLayout=QtGui.QHBoxLayout()
 
-    self.dolnyL=QtGui.QTextBrowser()
-    self.dolnyLFont=QtGui.QFont()
-    self.dolnyLFont.setPointSize(8)
-    self.dolnyL.setFont(self.dolnyLFont)
+    self.downL=QtGui.QTextBrowser()
+    self.downLFont=QtGui.QFont()
+    self.downLFont.setPointSize(8)
+    self.downL.setFont(self.downLFont)
     self.appendInfo("Początek zdarzeń")
 
     self.eventList=EventList()
 #     self.eventList.itemDoubleClicked.connect(self.eventListDblClick)
 
-    self.dolnyLayout.addWidget(self.dolnyL)
-    self.dolnyLayout.addWidget(self.eventList)
+    self.downLayout.addWidget(self.downL)
+    self.downLayout.addWidget(self.eventList)
 
-    self.dolny=QtGui.QWidget()
-    self.dolny.setMinimumHeight(50)
-    self.dolny.setMaximumHeight(100)
-    self.dolny.setLayout(self.dolnyLayout)
+    self.down=QtGui.QWidget()
+    self.down.setMinimumHeight(50)
+    self.down.setMaximumHeight(100)
+    self.down.setLayout(self.downLayout)
 
 #     self.gornyPaleta=QtGui.QPalette(QtGui.QColor(255,20,20))
 #     self.gorny=QtGui.QPushButton("Potwierdzanie zdarzeń")
@@ -62,16 +75,16 @@ class MainWidget(QtGui.QWidget):
 
     wc=QtGui.QWidget()
 
-    hLayout.addWidget(self.centralny)
+    hLayout.addWidget(self.centralWidget)
 
     wc.setLayout(hLayout)
 
     vLayout.addWidget(wc)
-    vLayout.addWidget(self.dolny)
+    vLayout.addWidget(self.down)
 
     self.setLayout(vLayout)
 
-  def appendInfo(self, info): self.dolnyL.append(info)
+  def appendInfo(self, info): self.downL.append(info)
 
   def appendEvent(self, event):
     self.eventList.addItem(event)
@@ -92,7 +105,7 @@ class MainWindow(QtGui.QMainWindow):
     self.setPalette(self.blueSkin)
 
     self.menubar = self.menuBar()
-    self.isPokazPozycjeKursora=False
+    self.isShowCursorPosition=False
 
     self.statusBar().showMessage("Gotowy")
 
@@ -106,11 +119,11 @@ class MainWindow(QtGui.QMainWindow):
     self.actionFullScreen.setShortcut("Ctrl+F")
     self.actionFullScreen.triggered.connect(self.switchFullScreen)
 
-    self.actionPozycjaKursora=QtGui.QAction("Pokaż pozycję kursora", self)
-    self.actionPozycjaKursora.setStatusTip("Pokaż pozycję kursora")
-    self.actionPozycjaKursora.setShortcut("Ctrl+Shift+G")
-    self.actionPozycjaKursora.setCheckable(True)
-    self.actionPozycjaKursora.triggered.connect(self.pozycjaKursoraCon)
+    self.actionCursorPosition=QtGui.QAction("Pokaż pozycję kursora", self)
+    self.actionCursorPosition.setStatusTip("Pokaż pozycję kursora")
+    self.actionCursorPosition.setShortcut("Ctrl+Shift+G")
+    self.actionCursorPosition.setCheckable(True)
+    self.actionCursorPosition.triggered.connect(self.CursorPositionCon)
 
     # Dialog allowing user change his password
     self.actionUserPasswordChange=QtGui.QAction('Zmień hasło', self)
@@ -138,18 +151,22 @@ class MainWindow(QtGui.QMainWindow):
     # Action allowing adding, deleting and modifying system maps
     self.actionMapEditor=QtGui.QAction('Edytor map', self)
     self.actionMapEditor.triggered.connect(
-      lambda: self.mainWidget.centralny.addTab(MapEditor(), 'Edytor map'))
+      lambda: self.mainWidget.centralWidget.addTab(MapEditor(), 'Edytor map'))
 
     fileMenu=self.menubar.addMenu("&Plik")
     fileMenu.addAction(self.actionExit)
+
     windowMenu=self.menubar.addMenu("Ekran")
     windowMenu.addAction(self.actionFullScreen)
-    narzedziaMenu=self.menubar.addMenu("Narzędzia")
-    narzedziaMenu.addAction(self.actionLegenda)
-    narzedziaMenu.addAction(self.actionMapy)
-    narzedziaMenu.addAction(self.actionUserPasswordChange)
-    narzedziaSerwisMenu=narzedziaMenu.addMenu("Serwis")
-    narzedziaSerwisMenu.addAction(self.actionPozycjaKursora)
+
+    toolsMenu=self.menubar.addMenu("Narzędzia")
+    toolsMenu.addAction(self.actionLegenda)
+    toolsMenu.addAction(self.actionMapy)
+    toolsMenu.addAction(self.actionUserPasswordChange)
+
+    toolsServiceMenu=toolsMenu.addMenu("Serwis")
+    toolsServiceMenu.addAction(self.actionCursorPosition)
+
     adminMenu=self.menubar.addMenu('Administracja')
     adminMenu.addAction(self.actionUsersList)
     adminMenu.addAction(self.actionSystemList)
@@ -177,7 +194,7 @@ class MainWindow(QtGui.QMainWindow):
 
     # All detectors, zones, etc
     # This is little crazy thing: here are connection betwen database ex.
-    # detectors and real detectors
+    # detectors and real detectors from systems
     self.allSystems={}
     self.allDetectors={}
     self.allOuts={}
@@ -521,8 +538,8 @@ class MainWindow(QtGui.QMainWindow):
     pixmap.loadFromData(pixmapData, format='PNG')
 
     gfxMap=Map(pixmap)
-    self.mainWidget.centralny.addTab(gfxMap, dbMap.name)
-    self.mainWidget.centralny.setCurrentIndex(self.centralny.count()-1)
+    self.mainWidget.centralWidget.addTab(gfxMap, dbMap.name)
+    self.mainWidget.centralWidget.setCurrentIndex(self.mainWidget.centralWidget.count()-1)
 
     for detector in dbMap.detectors:
       gfxMap.addDetector(self.allDetectors[detector.detector],
@@ -543,16 +560,14 @@ class MainWindow(QtGui.QMainWindow):
       for z in zonePoints: zonePoints_.append(zonePoints[z])
       gfxMap.addZone(self.allZones[zone.zone], zonePoints_)
 
-
-#TODO: dziwne, działa po kliknięciu. Ale to i lepiej :)
-  def pozycjaKursoraCon(self):
-    if self.isPokazPozycjeKursora:
-      self.mainWidget.centralny.currentWidget().mouseMoveEventCon(None)
-      self.isPokazPozycjeKursora=False
+  def CursorPositionCon(self):
+    if self.isShowCursorPosition:
+      self.mainWidget.centralWidget.currentWidget().mouseMoveEventCon(None)
+      self.isShowCursorPosition=False
       self.mainWidget.appendInfo(">>> Wyłączono pokazywanie pozycji kursora")
     else:
-      self.mainWidget.centralny.currentWidget().mouseMoveEventCon(self.statusBar())
-      self.isPokazPozycjeKursora=True
+      self.mainWidget.centralWidget.currentWidget().mouseMoveEventCon(self.statusBar())
+      self.isShowCursorPosition=True
       self.mainWidget.appendInfo(">>> Włączono pokazywanie pozycji kursora. Kliknij, aby zobaczyć")
 
   def showLegend(self):
@@ -618,30 +633,26 @@ class MainWindow(QtGui.QMainWindow):
                                 QtCore.QPoint(110,374)])
     self.mapa.addOut(self.legendCA.getOut(1), QtCore.QPoint(135,405))
     self.mapa.addOut(self.o1, QtCore.QPoint(135,426))
-    self.mainWidget.centralny.addTab(self.mapa, "Legenda")
-
-#   def showMaps(self):
-#     self.mainWidget.lewyDock.show()
+    self.mainWidget.centralWidget.addTab(self.mapa, "Legenda")
 
 if __name__ == '__main__':
   import sys
 
   app = QtGui.QApplication(sys.argv)
 
-#TODO: trochę po chamsku, ale działa
-#nie mam pomysłu jak to poprawić...
-  iloscProb=0
-  while iloscProb<3:
-    wynik=LoginWindow().exec_()
-    if wynik==1:
+#TODO: done in some lazy way. Try to reconstruct this
+  loginCounts=0
+  while loginCounts<3:
+    ret=LoginWindow().exec_()
+    if ret==1:
       wMain=MainWindow()
       wMain.showFullScreen()
       wMain.setWindowTitle("Tablica synoptyczna")
       #w.setWindowFlags(w.windowFlags()&~QtCore.Qt.WindowStaysOnTopHint)
       wMain.show()
       break
-    elif wynik==2: iloscProb+=1
-    else: iloscProb=3
-  if iloscProb>2: sys.exit(0)
+    elif ret==2: loginCounts+=1
+    else: loginCounts=3
+  if loginCounts>2: sys.exit(0)
 
   sys.exit(app.exec_())
