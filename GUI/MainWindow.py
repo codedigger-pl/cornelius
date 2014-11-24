@@ -223,7 +223,7 @@ class MainWindow(QtGui.QMainWindow):
         zone=integra.Zone(dbZone.name)
         CA.addZone(zone)
 
-        # adding key dbZone <-> systemOut
+        # adding key dbZone <-> systemZone
         self.allZones[dbZone]=zone
 
       CAReader=dataReader.EthernetDataReader(integraSystem.IP,
@@ -522,14 +522,20 @@ class MainWindow(QtGui.QMainWindow):
     else: self.showFullScreen()
 
   def mapExplorerDblClicked(self, event):
+    """Adding map to view panel (central area on screen"""
+
+    # getting database map from clicked element
     dbMap=self.mapExplorerDock.lstMaps.currentItem().data(0, QtCore.Qt.UserRole)
 
+    # adding some info
     self.mainWidget.appendInfo('>>> Wstawianie mapy '+dbMap.name)
 
+    # creating pimap
     pixmapData=QtCore.QByteArray().fromRawData(dbMap.graphic)
     pixmap=QtGui.QPixmap()
     pixmap.loadFromData(pixmapData, format='PNG')
 
+    # creating map
     gfxMap=Map(pixmap)
     self.mainWidget.centralWidget.addTab(gfxMap, dbMap.name)
     self.mainWidget.centralWidget.setCurrentIndex(self.mainWidget.centralWidget.count()-1)
@@ -545,6 +551,8 @@ class MainWindow(QtGui.QMainWindow):
                                   out.pointY/1000*gfxMap.height()))
 
     for zone in dbMap.zones:
+      #TODO: need fixing. Realy, it need it...
+      # If somebody will ask, it's not my code :)
       zonePoints={}
       for zonePoint in zone.points:
         zonePoints[zonePoint.pointNumber]=QtCore.QPoint(zonePoint.pointX/1000*gfxMap.width(),
