@@ -172,9 +172,12 @@ class Integra(Base):
   IP=Column(String(15))
   port=Column(String(10))
 
-  detectors=relationship('Detector')
-  zones=relationship('Zone')
-  outs=relationship('Out')
+  detectors=relationship('Detector',
+                         cascade='all, delete-orphan')
+  zones=relationship('Zone',
+                     cascade='all, delete-orphan')
+  outs=relationship('Out',
+                    cascade='all, delete-orphan')
 
 class Detector(Base):
   """Detectors in any system
@@ -230,7 +233,8 @@ class DetectorPoint(Base):
   pointY=Column(Integer)
 
   detectorID=Column(Integer, ForeignKey('detectors.id'))
-  detector=relationship('Detector')
+  detector=relationship('Detector',
+                        backref=backref('detectorPoints', cascade='all,delete'))
 
   map=Column(Integer, ForeignKey('maps.id'))
 
@@ -255,9 +259,11 @@ class ZoneArea(Base):
   id=Column(Integer, primary_key=True)
 
   zoneID=Column(Integer, ForeignKey('zones.id'))
-  zone=relationship('Zone')
+  zone=relationship('Zone',
+                    backref=backref('zonesAreas', cascade='all,delete'))
 
-  points=relationship('ZonePoint')
+  points=relationship('ZonePoint',
+                      cascade='all, delete-orphan')
 
   map=Column(Integer, ForeignKey('maps.id'))
 
@@ -274,7 +280,8 @@ class OutPoint(Base):
   pointY=Column(Integer)
 
   outID=Column(Integer, ForeignKey('outs.id'))
-  out=relationship('Out')
+  out=relationship('Out',
+                   backref=backref('outPoints', cascade='all,delete'))
 
   map=Column(Integer, ForeignKey('maps.id'))
 
@@ -291,9 +298,12 @@ class Map(Base):
   name=Column(String(50))
   graphic=Column(LargeBinary)
 
-  detectors=relationship('DetectorPoint')
-  zones=relationship('ZoneArea')
-  outs=relationship('OutPoint')
+  detectors=relationship('DetectorPoint',
+                         cascade='all, delete-orphan')
+  zones=relationship('ZoneArea',
+                     cascade='all, delete-orphan')
+  outs=relationship('OutPoint',
+                    cascade='all, delete-orphan')
 #------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------- main
