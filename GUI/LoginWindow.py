@@ -1,9 +1,15 @@
 # -*- coding: utf-8 -*-
-'''
-Created on 29 cze 2014
 
-@author: codedigger
-'''
+###############################################################################
+# LoginWindow.py
+#
+# author: Paweł Surowiec (codedigger)
+# creation date: ?
+# version: 0.0.1
+#
+# Module contains login window, which allow user to login to system
+#
+###############################################################################
 
 from PyQt4 import QtGui, QtCore
 import bcrypt
@@ -15,7 +21,7 @@ class LoginWindow(QtGui.QDialog):
     super(LoginWindow, self).__init__()
 
     self.resize(350,150)
-    self.setWindowTitle("Logowanie do systemu")
+    self.setWindowTitle('Logowanie do systemu')
 
     self.vlayout=QtGui.QHBoxLayout()
 
@@ -27,8 +33,8 @@ class LoginWindow(QtGui.QDialog):
     self.password=QtGui.QLineEdit()
     self.password.setEchoMode(QtGui.QLineEdit.Password)
 
-    self.btnAnuluj=QtGui.QPushButton("Anuluj")
-    self.btnZaloguj=QtGui.QPushButton("Zaloguj")
+    self.btnAnuluj=QtGui.QPushButton('Anuluj')
+    self.btnZaloguj=QtGui.QPushButton('Zaloguj')
 
     self.buttony=QtGui.QDialogButtonBox()
     self.buttony.setStandardButtons(QtGui.QDialogButtonBox.Abort|
@@ -37,14 +43,14 @@ class LoginWindow(QtGui.QDialog):
     self.buttony.rejected.connect(self.clkReject)
     self.buttony.accepted.connect(self.clkAccept)
 
-    self.loginPanelLayout.addRow("Login: ", self.login)
-    self.loginPanelLayout.addRow("Hasło: ", self.password)
-    self.loginPanelLayout.addRow(" ", QtGui.QWidget())
-    self.loginPanelLayout.addRow(" ", self.buttony)
+    self.loginPanelLayout.addRow('Login: ', self.login)
+    self.loginPanelLayout.addRow('Hasło: ', self.password)
+    self.loginPanelLayout.addRow(' ', QtGui.QWidget())
+    self.loginPanelLayout.addRow(' ', self.buttony)
     self.loginPanelLayout.setFormAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
 
-    self.logo=QtGui.QLabel("")
-    self.logo.setPixmap(QtGui.QPixmap("../gfx/img/32WOG-logo.png"))
+    self.logo=QtGui.QLabel('')
+    self.logo.setPixmap(QtGui.QPixmap(statics.logoPath))
 
     self.vlayout.addWidget(self.logo)
     self.vlayout.addWidget(self.loginPanel)
@@ -73,8 +79,6 @@ class LoginWindow(QtGui.QDialog):
       self.done(2)
 
 
-
-#Do przetestowania - potem usunąć
 if __name__ == '__main__':
   import sys
   app = QtGui.QApplication(sys.argv)

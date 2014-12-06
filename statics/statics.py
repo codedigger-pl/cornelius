@@ -16,4 +16,5 @@ alarmReason=('Sprawdzenie systemu',
              'Błąd użytkownika',
              'Błąd systemu')
 
-sndAlarmPath='../gfx/snd/alarm.mp3'
+logoPath='gfx/img/32WOG-logo.png'
+sndAlarmPath='gfx/snd/alarm.mp3'
