@@ -12,20 +12,20 @@
 #
 ###############################################################################
 
-MAINWINDOW_PY_VERSION=(0,0,1)
-
 from PyQt4 import QtGui, QtCore
-from GUI.CentralWidget import CentralWidget
+
 from Satel import integra, dataReader
-from GUI.LoginWindow import LoginWindow
-from GUI.UsersList import UsersList
-from GUI.EventList import EventList
-from GUI.SystemEditor import SystemEditor
-from GUI.DlgUserPasswordChange import DlgUserPasswordChange
-from GUI.MapEditor import MapEditor
-from GUI.MapExplorer import MapExplorer
 from statics import statics
 from db import db
+
+from .CentralWidget import CentralWidget
+from .LoginWindow import LoginWindow
+from .UsersList import UsersList
+from .EventList import EventList
+from .SystemEditor import SystemEditor
+from .DlgUserPasswordChange import DlgUserPasswordChange
+from .MapEditor import MapEditor
+from .MapExplorer import MapExplorer
 from .Event import Event, EventType
 from .Map import Map
 
@@ -238,7 +238,7 @@ class MainWindow(QtGui.QMainWindow):
 
             CAReader=dataReader.EthernetDataReader(integraSystem.IP,
                                                    port)
-            CAReader.connect()
+            # CAReader.connect()
             CAParser = dataReader.DataParser()
             CAParser.assignPort(CAReader)
             CAParser.assignCA(CA)

@@ -75,6 +75,9 @@ class EthernetDataReader(DataReader):
             print('Problem with connecting to Integra at', str(self.ipAdress) + ':' + str(self.port))
             print(e)
 
+    def close_connection(self):
+        self.socket.close()
+
 
 class DataParser(QtCore.QThread):
 
@@ -264,20 +267,6 @@ class DataParser(QtCore.QThread):
         self.sleep(self.time)
 
     def run(self):
-        # Odczyt zmian w CA
-        '''
-        dane=[]
-        self.port.write(self.buildFrame(0x7F))
-        while self.checkFrame(dane)==False:
-          i=self.port.read()
-          if len(dane)>1:
-            if (i==0xF0)&(dane[-1]==0xFE): pass
-            elif (i==0xFE)&(dane[-1]==0xFE): dane=[0xFE, 0xFE]
-            #elif (i==0x0D)&&(dane[-1]==0xFE): pass
-          else: dane.append(i)
-        self.parseData(dane)
-        '''
-
         # Odczyt danych oraz ich interpretacja
 
         while(True):
@@ -302,19 +291,21 @@ class DataParser(QtCore.QThread):
             self.zadania.append([0x28, ])
             self.zadania.append([0x29, ])
 
-            for z in self.zadania:
-                self.port.write(self.buildFrame(z))
-                dane=self.port.read()
-                if self.checkFrame(dane): self.parseData(dane[2:-4])
+            # Opening port for connection
+            try:
+                self.port.connect()
+                # Writing and receiving new data from CA
+                for z in self.zadania:
+                    self.port.write(self.buildFrame(z))
+                    dane=self.port.read()
+                    if self.checkFrame(dane): self.parseData(dane[2:-4])
+                # Closing port
+                self.port.close_connection()
+            except Exception as e:
+                print('Connection trouble')
+                print(e)
 
-                #       while self.checkFrame(dane)==False:
-                #         i=self.port.read()
-                #         if len(dane)>1:
-                #           if (i==0xF0)&(dane[-1]==0xFE): pass
-                #           elif (i==0xFE)&(dane[-1]==0xFE): dane=[0xFE, 0xFE]
-                #         #elif (i==0x0D)&&(dane[-1]==0xFE): pass
-                #         else: dane.append(i)
-                #       self.parseData(dane)
-                #       dane=[]
+            # Clearing tasks
             self.zadania=[]
+
             sleep(0.5)
