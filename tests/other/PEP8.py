@@ -17,24 +17,24 @@ class Flake8Test(unittest.TestCase):
 
     def test_myself(self):
         """Testing this file"""
-        self.assertEqual(main.check_file('other/PEP8.py', ignore=('E501', )), 0, 'Errors or warnings in PEP8 test file')
+        self.assertEqual(main.check_file('tests/other/PEP8.py', ignore=('E501', )), 0, 'Errors or warnings in PEP8 test file')
 
     def test_main_py(self):
         """Testing main.py file"""
-        self.assertEqual(main.check_file('../main.py', ignore=('E501', )), 0, '(FLAKE8) Errors or warnings while testing main.py')
+        self.assertEqual(main.check_file('main.py', ignore=('E501', )), 0, '(FLAKE8) Errors or warnings while testing main.py')
 
     def test_class_tests(self):
         """Testing Satel package"""
-        files = ('dataReaderTest.py', )
+        files = ('dataReader.py', )
         for file in files:
-            self.assertEqual(main.check_file('classTests/' + file, ignore=('E501', )), 0,
+            self.assertEqual(main.check_file('tests/classTests/' + file, ignore=('E501', )), 0,
                              '(FLAKE8) Errors or warnings while testing ' + file)
 
     def test_satel_package(self):
         """Testing Satel package"""
         files = ('dataReader.py', 'integra.py')
         for file in files:
-            self.assertEqual(main.check_file('../Satel/' + file, ignore=('E501', )), 0,
+            self.assertEqual(main.check_file('Satel/' + file, ignore=('E501', )), 0,
                              '(FLAKE8) Errors or warnings while testing ' + file)
 
     def tearDown(self):

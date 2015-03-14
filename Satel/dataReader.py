@@ -1,10 +1,71 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import serial
 import socket
-from PyQt4 import QtCore
 from time import sleep
+
+import serial
+from PyQt4 import QtCore
+
+
+def rotate_left(data):
+    """ Rotating bits to the left with carriage.
+
+    :param data: 2 bytes
+    :return: rotated data
+    """
+    if data > 0xFFFF:
+        raise TypeError('Data can not be larger than 2 bytes (16 bits)')
+    # moving bits left with cutting to two bytes
+    result = ((data << 1) & 0b1111111111111111)
+    # moving oldest bit to first bit
+    result = result | ((data & 0b1000000000000000) >> 15)
+    return result
+
+
+def high_byte(data):
+    """ Returning highest byte.
+
+    :param data: 2 bytes
+    :return: highest byte from data
+    """
+    if data > 0xFFFF:
+        raise TypeError('Data can not be larger than 2 bytes (16 bits)')
+
+    return (data & 0xff00) // 256
+
+
+def low_byte(data):
+    """ Returning lowest byte.
+
+    :param data: 2 bytes
+    :return: lowest byte from data
+    """
+    if data > 0xFFFF:
+        raise TypeError('Data can not be larger than 2 bytes (16 bits)')
+
+    return data & 0xff
+
+
+def calculate_crc(data):
+    """ __calculateCRC
+    Calculating CRC according to Satel docs.
+
+    :param data: data to calculate
+    :return: calculated crc
+    """
+    crc = 0x147A
+    for d in data:
+        crc = rotate_left(crc)                  # rotating byte
+        crc = crc ^ 0xffff                      # XOR
+        crc = crc + high_byte(crc) + d          # according to doc
+        crc = crc & 0b1111111111111111          # cutting to 2 bytes
+
+    # converting to bytearray
+    inStr = hex(crc)[2:]
+    if (len(inStr) % 2) == 1:
+        inStr = '0' + inStr
+    return bytearray.fromhex(inStr)
 
 
 class DataReader(QtCore.QObject):
@@ -133,52 +194,16 @@ class DataParser(QtCore.QThread):
         self.tasks = []
 
     def __rl(self, data):
-        """Rotating bit left"""
-        # moving bits left with cutting to two bytes
-        result = ((data << 1) & 0b1111111111111111)
-        # moving oldest bit to first bit
-        result = result | ((data & 0b1000000000000000) >> 15)
-        return result
+        return rotate_left(data)
 
     def __hi(self, data):
-        """Returning high byte from data"""
-        return (data & 0xff00) // 256
+        return high_byte(data)
 
     def __lo(self, data):
-        """Returning low byte from data"""
-        return data[0] & 0xff
+        return low_byte(data)
 
     def __calculateCRC(self, data):
-        """ __calculateCRC
-        Calculating CRC according to Satel docs.
-
-        :param data: data to calculate
-        :return: calculated crc
-        """
-        crc = 0x147A
-        for d in data:
-            crc = self.__rl(crc)                # rotating byte
-            crc = crc ^ 0xffff                  # XOR
-            crc = crc + self.__hi(crc) + d      # according to doc
-            crc = crc & 0b1111111111111111      # cutting to 2 bytes
-
-        # converting to bytearray
-        inStr = hex(crc)[2:]
-        if (len(inStr) % 2) == 1:
-            inStr = '0' + inStr
-        return bytearray.fromhex(inStr)
-
-    # TODO: move to root or delete after tests
-    def testHi(self, data):
-        return self.__hi(data)
-
-    # TODO: move to root or delete after tests
-    def testRl(self, data):
-        return self.__rl(data)
-
-    # TODO: move to root or delete after tests
-    def testCRC(self, data):
-        return self.__calculateCRC(data)
+        return calculate_crc(data)
 
     def setTime(self, time):
         """Setting time between reading data from CA"""
@@ -242,26 +267,26 @@ class DataParser(QtCore.QThread):
         :param data: data to build
         :return: (bytearray) frame ready to send
         """
-        dane = bytearray()
+        w_data = bytearray()
 
         # frame header
-        dane.append(0xFE)
-        dane.append(0xFE)
+        w_data.append(0xFE)
+        w_data.append(0xFE)
 
         # adding data to frame
         if type(data) is list:
-            dane.extend(data)
+            w_data.extend(data)
         else:
-            dane.append(data)
+            w_data.append(data)
 
         # adding CRC
-        dane.extend(self.__calculateCRC(data))
+        w_data.extend(self.__calculateCRC(data))
 
         # adding tail
-        dane.append(0xFE)
-        dane.append(0x0D)
+        w_data.append(0xFE)
+        w_data.append(0x0D)
 
-        return dane
+        return w_data
 
     def parseData(self, data):
         """ parseData

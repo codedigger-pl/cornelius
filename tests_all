@@ -2,12 +2,4 @@
 # -*- coding: utf-8 -*-
 
 from tests.other.PEP8 import Flake8Test
-from tests.classTests.dataReaderTest import DataReaderTest
-
-
-if __name__ == '__main__':
-    # running PEP8 and similar tests
-    Flake8Test.run()
-
-    # running class tests
-    DataReaderTest.run()
+from tests.classTests.dataReader import DataParserTest, FunctionsTest
