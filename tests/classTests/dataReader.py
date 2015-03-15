@@ -2,7 +2,28 @@
 # -*- coding: utf-8 -*-
 
 import unittest
+import socket
+from threading import Thread
+from time import sleep
 from Satel import dataReader
+
+
+class DataReaderTest(unittest.TestCase):
+    """Testing interface"""
+    def setUp(self):
+        self.reader = dataReader.DataReader()
+
+    def test_read(self):
+        self.assertRaises(NotImplementedError, self.reader.read)
+
+    def test_write(self):
+        self.assertRaises(NotImplementedError, self.reader.write, bytearray())
+
+    def test_connect(self):
+        self.assertRaises(NotImplementedError, self.reader.connect)
+
+    def test_close_connection(self):
+        self.assertRaises(NotImplementedError, self.reader.close_connection)
 
 
 class FunctionsTest(unittest.TestCase):
@@ -76,7 +97,13 @@ class FunctionsTest(unittest.TestCase):
 class DataParserTest(unittest.TestCase):
 
     def setUp(self):
-        self.reader = dataReader.DataParser()
+        try:
+            self.reader = dataReader.DataParser()
+        except:
+            self.reader = None
+
+    def test_creation(self):
+        self.assertNotEqual(self.reader, None, 'Class not initialized')
 
     def test_check_frame(self):
         data = [0xFE, 0xFE, 0x09, 0xD7, 0xEB, 0xFE, 0x0D]
@@ -85,6 +112,35 @@ class DataParserTest(unittest.TestCase):
         self.assertTrue(self.reader.checkFrame(data), 'Error while frame validation')
         data = [0xFE, 0xFE, 0xe0, 0x12, 0x34, 0xff, 0xff, 0x8a, 0x9b, 0xfe, 0x0d]
         self.assertTrue(self.reader.checkFrame(data), 'Error while frame validation')
+
+    def test_check_frame__frame_to_short(self):
+        """Testing too short frame data"""
+        data = [0XFE, 0xFE, 0xFE, 0x0D]
+        self.assertFalse(self.reader.checkFrame(data), 'Checking frame (too short) passes true')
+
+    def test_check_frame__no_data(self):
+        """Testing check_frame with no data"""
+        self.assertFalse(self.reader.checkFrame(None), 'Checking frame with no data passes true')
+
+    def test_check_frame__bad_header(self):
+        """Testing check_frame with bad header"""
+        data = [0xFE, 0xFD, 0x09, 0xD7, 0xEB, 0xFE, 0x0D]
+        self.assertFalse(self.reader.checkFrame(data), 'Checking frame with bad header passes true')
+
+    def test_check_frame__bad_tail(self):
+        """Testing check_frame with bad header"""
+        data = [0xFE, 0xFE, 0x09, 0xD7, 0xEB, 0xFE, 0x0E]
+        self.assertFalse(self.reader.checkFrame(data), 'Checking frame with bad tail passes true')
+
+    def test_check_frame__bad_hi_crc(self):
+        """Testing check_frame with bad header"""
+        data = [0xFE, 0xFE, 0x09, 0xD8, 0xEB, 0xFE, 0x0D]
+        self.assertFalse(self.reader.checkFrame(data), 'Checking frame with bad high byte in crc passes true')
+
+    def test_check_frame__bad_lo_crc(self):
+        """Testing check_frame with bad header"""
+        data = [0xFE, 0xFE, 0x09, 0xD7, 0xEC, 0xFE, 0x0D]
+        self.assertFalse(self.reader.checkFrame(data), 'Checking frame with bad lo byte in crc passes true')
 
     def test_build_frame(self):
         """Testing correct frame building"""
@@ -97,3 +153,77 @@ class DataParserTest(unittest.TestCase):
         self.assertEqual(self.reader.buildFrame([0xe0, 0x12, 0x34, 0xff, 0xff]),
                          bytearray([0xFE, 0xFE, 0xe0, 0x12, 0x34, 0xff, 0xff, 0x8a, 0x9b, 0xfe, 0x0d]),
                          'Invalid frame was build')
+
+
+class EthernetDataReaderTest(unittest.TestCase):
+    """Testing EthernetDataReader class"""
+    def setUp(self):
+        self.ip_address = '192.168.0.11'
+        self.port = 7094
+        self.reader = dataReader.EthernetDataReader(ipAddress=self.ip_address, port=self.port)
+
+    def test_initializing(self):
+        """Testing class initializing"""
+        self.assertEqual(self.reader.ipAddress, self.ip_address, 'Bad ip address while class creation')
+        self.assertEqual(self.reader.port, self.port, 'Bad port while class creation')
+
+    def test_read__without_connection(self):
+        """Testing read without connection"""
+        self.assertEqual(self.reader.read(), None, 'While reading without connection get data other than None')
+
+    def test_write__without_connection(self):
+        """Testing write without connection - we shouldn't get any errors"""
+        self.reader.write(bytearray())
+        self.assertTrue(True, True)
+
+    def _test_write__some_data(self):
+        """Testing write to some created port"""
+        # TODO: works only at first time. Fix this later
+
+        class ServerThread(Thread):
+            def __init__(self):
+                super(ServerThread, self).__init__()
+                self.rec_data = None
+
+            def run(self):
+                # creating server socket
+                rec_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                rec_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                rec_socket.bind(('localhost', 7902))
+                rec_socket.listen(1)
+                conn, _ = rec_socket.accept()
+                # trying to receive some data
+                data = conn.recv(1024)
+                if not data:
+                    self.rec_data = None
+                self.rec_data = data
+
+                # closing server side socket
+                # sleep(2)
+                # conn.close()
+                rec_socket.close()
+
+        server = ServerThread()
+        server.start()
+
+        some_data = bytearray([0xFE, 0xFE, 0x09, 0xD7, 0xEB, 0xFE, 0x0D])
+
+        # creating class with valid configuration
+        reader = dataReader.EthernetDataReader(ipAddress='127.0.0.1', port=7902)
+        reader.connect()
+        reader.write(some_data)
+        sleep(1)
+        reader.close_connection()
+        server.join()
+
+        self.assertEqual(some_data, server.rec_data, 'Data not the same')
+
+    def test_connect__without_valid_configuration(self):
+        """Trying to connect without configuration"""
+        reader = dataReader.EthernetDataReader()
+        self.assertFalse(reader.connect(), 'Connecting without configuration passes true')
+
+    def test_connect__to_missing_host(self):
+        """Trying to connect to missing host. In your network can't be host with below ip address"""
+        self.reader.ipAddress = '192.168.0.254'
+        self.assertFalse(self.reader.connect(), 'Connection to missing host established')

@@ -118,7 +118,7 @@ class EthernetDataReader(DataReader):
     Read data from ethernet port
     """
 
-    def __init__(self, ipAddress, port):
+    def __init__(self, ipAddress=None, port=7094):
         """ Class initialization
 
         :param ipAdress: (str) - ip address
@@ -129,7 +129,7 @@ class EthernetDataReader(DataReader):
         self.socket = None
 
         self.ipAddress = ipAddress
-        self.port = port
+        self.port = int(port)
 
     def read(self):
         """ Reading data from port.
@@ -159,15 +159,23 @@ class EthernetDataReader(DataReader):
         """ connect
         Connecting to port (setting up socket). Set ipAddress and port before connect.
 
-        :return: none
+        :return: (bool) connection was established
         """
+        # checking valid configuration
+        if self.ipAddress is None or self.port is None:
+            return False
+
+        # trying establish connection
         proto = socket.getprotobyname('tcp')
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM, proto)
+        self.socket.settimeout(2)
         try:
-            self.socket.connect((self.ipAdress, self.port))
+            self.socket.connect((self.ipAddress, self.port))
+            return True
         except Exception as e:
-            print('Problem with connecting to Integra system at', str(self.ipAdress) + ':' + str(self.port))
+            print('Problem with connecting to Integra system at', str(self.ipAddress) + ':' + str(self.port))
             print(e)
+            return False
 
     def close_connection(self):
         """ close_connection
@@ -233,11 +241,11 @@ class DataParser(QtCore.QThread):
             return False
 
         # checking header
-        if (data[0] != 0xfe) & (data[1] != 0xfe):
+        if (data[0] != 0xfe) | (data[1] != 0xfe):
             return False
 
         # checking tail
-        if (data[-1] != 0x0d) & (data[-2] != 0xfe):
+        if (data[-1] != 0x0d) | (data[-2] != 0xfe):
             return False
 
         # changing FE F0 to single FE value
@@ -252,10 +260,8 @@ class DataParser(QtCore.QThread):
         # calculating CRC value
         crc = self.__calculateCRC(data[2:-4])
         if(data[-3] != crc[1]):
-            print("LO CRC Error:", hex(data[-3]), ", should be:", hex(self.__lo(crc)))
             return False
         if(data[-4] != crc[0]):
-            print("HI CRC Error:", hex(data[-4]), ", should be:", hex(self.__hi(crc)))
             return False
 
         return True

@@ -2,4 +2,4 @@
 # -*- coding: utf-8 -*-
 
 from tests.other.PEP8 import Flake8Test
-from tests.classTests.dataReader import DataParserTest, FunctionsTest
+from tests.classTests.dataReader import DataParserTest, FunctionsTest, DataReaderTest, EthernetDataReaderTest

@@ -3,6 +3,7 @@ from random import randint
 
 from Satel.integra import Integra, Integra128, Integra24, Integra256Plus, Integra32, Integra64
 
+
 class DefaultIntegraTests(unittest.TestCase):
     """Default test class"""
     def testInicjalizacjaOK(self):
