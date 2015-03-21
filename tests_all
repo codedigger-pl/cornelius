@@ -1,5 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+# enabling PEP8 tests
 from tests.other.PEP8 import Flake8Test
-from tests.classTests.dataReader import DataParserTest, FunctionsTest, DataReaderTest, EthernetDataReaderTest
+
+# enabling package tests: interfaces, functions, etc...
+from Satel.tests.dataReader import DataReaderTest, FunctionsTest
+
+# enabling satel EthernetDataReader test
+from Satel.tests.ethernetDataReader import EthernetDataReaderTest
+
+# enabling satel DataParser tests
+from Satel.tests.dataParser import DataParserTest
+
+# enabling satel Integra tests
+# from Satel.tests.integra import Integra128Test, Integra24Test, Integra256Test, Integra32Test, Integra64Test

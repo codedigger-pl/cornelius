@@ -7,6 +7,8 @@ from time import sleep
 from PyQt4 import QtCore
 from warnings import warn
 
+from Satel.integra import change_byte
+
 
 def rotate_left(data):
     """ Rotating bits to the left with carriage.
@@ -353,7 +355,7 @@ class DataParser(QtCore.QThread):
         f_data = 0
         task = 0
         for i in data[1:-1]:
-            f_data = (f_data << 8) + self.CA.changeByte(i)
+            f_data = (f_data << 8) + change_byte(i)
         for i in range(39):
             if f_data & mask:
                 self.tasks.append([task, ])

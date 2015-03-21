@@ -23,18 +23,18 @@ class Flake8Test(unittest.TestCase):
         """Testing main.py file"""
         self.assertEqual(main.check_file('main.py', ignore=('E501', )), 0, '(FLAKE8) Errors or warnings while testing main.py')
 
-    def test_class_tests(self):
-        """Testing Satel package"""
-        files = ('dataReader.py', )
-        for file in files:
-            self.assertEqual(main.check_file('tests/classTests/' + file, ignore=('E501', )), 0,
-                             '(FLAKE8) Errors or warnings while testing ' + file)
-
     def test_satel_package(self):
         """Testing Satel package"""
         files = ('dataReader.py', 'integra.py')
         for file in files:
             self.assertEqual(main.check_file('Satel/' + file, ignore=('E501', )), 0,
+                             '(FLAKE8) Errors or warnings while testing ' + file)
+
+    def test_satel_package_tests(self):
+        """Testing Satel package"""
+        files = ('dataParser.py', 'dataReader.py', 'ethernetDataReader.py', 'integra.py')
+        for file in files:
+            self.assertEqual(main.check_file('Satel/tests/' + file, ignore=('E501', )), 0,
                              '(FLAKE8) Errors or warnings while testing ' + file)
 
     def tearDown(self):
