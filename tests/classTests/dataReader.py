@@ -154,6 +154,11 @@ class DataParserTest(unittest.TestCase):
                          bytearray([0xFE, 0xFE, 0xe0, 0x12, 0x34, 0xff, 0xff, 0x8a, 0x9b, 0xfe, 0x0d]),
                          'Invalid frame was build')
 
+    def test_build_frame__with_one_byte(self):
+        self.assertEqual(self.reader.buildFrame(0x09),
+                         bytearray([0xFE, 0xFE, 0x09, 0xD7, 0xEB, 0xFE, 0x0D]),
+                         'Invalid frame was build')
+
 
 class EthernetDataReaderTest(unittest.TestCase):
     """Testing EthernetDataReader class"""

@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import socket
-from time import sleep
-
 import serial
+from time import sleep
 from PyQt4 import QtCore
+from warnings import warn
 
 
 def rotate_left(data):
@@ -202,27 +202,34 @@ class DataParser(QtCore.QThread):
         self.tasks = []
 
     def __rl(self, data):
+        warn('This method is deprecated. Use rotate_left instead.', DeprecationWarning)
         return rotate_left(data)
 
     def __hi(self, data):
+        warn('This method is deprecated. Use high_byte instead.', DeprecationWarning)
         return high_byte(data)
 
     def __lo(self, data):
+        warn('This method is deprecated. Use low_byte instead.', DeprecationWarning)
         return low_byte(data)
 
     def __calculateCRC(self, data):
+        warn('This method is deprecated. Use calculate_crc instead.', DeprecationWarning)
         return calculate_crc(data)
 
     def setTime(self, time):
         """Setting time between reading data from CA"""
+        warn('This method is deprecated. Use time directly.', DeprecationWarning)
         self.time = time
 
     def assignCA(self, CA):
         """Assigning alarm system"""
+        warn('This method is deprecated. Use CA directly.', DeprecationWarning)
         self.CA = CA
 
     def assignPort(self, port):
         """Assigning communication port"""
+        warn('This method is deprecated. Use port directly.', DeprecationWarning)
         self.port = port
 
     def checkFrame(self, data):
@@ -258,7 +265,7 @@ class DataParser(QtCore.QThread):
                 data.append(tmp[i])
 
         # calculating CRC value
-        crc = self.__calculateCRC(data[2:-4])
+        crc = calculate_crc(data[2:-4])
         if(data[-3] != crc[1]):
             return False
         if(data[-4] != crc[0]):
@@ -280,13 +287,14 @@ class DataParser(QtCore.QThread):
         w_data.append(0xFE)
 
         # adding data to frame
-        if type(data) is list:
-            w_data.extend(data)
+        if not isinstance(data, (list, tuple)):
+            r_data = [data, ]
         else:
-            w_data.append(data)
+            r_data = data
 
+        w_data.extend(r_data)
         # adding CRC
-        w_data.extend(self.__calculateCRC(data))
+        w_data.extend(calculate_crc(r_data))
 
         # adding tail
         w_data.append(0xFE)
@@ -353,6 +361,8 @@ class DataParser(QtCore.QThread):
             task += 1
 
     def startConnection(self):
+        """This method will be removed after tests"""
+        warn('Do not use this method', Warning)
         self.sleep(self.time)
 
     def run(self):
