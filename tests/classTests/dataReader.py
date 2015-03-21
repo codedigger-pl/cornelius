@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-import socket
-from threading import Thread
+from socketserver import TCPServer, BaseRequestHandler
 from time import sleep
+from threading import Thread
 from Satel import dataReader
 
 
@@ -171,37 +171,70 @@ class EthernetDataReaderTest(unittest.TestCase):
         """Testing read without connection"""
         self.assertEqual(self.reader.read(), None, 'While reading without connection get data other than None')
 
+    def test_read__some_data(self):
+        """Testing read some data from socket"""
+        class ServerHandler(BaseRequestHandler):
+            """Server request handler"""
+
+            def handle(self):
+                self.request.sendall(self.server.some_data)
+
+        class ServerThread(Thread):
+            """Server thread"""
+            def __init__(self):
+                super(ServerThread, self).__init__()
+                self.server = TCPServer(('127.0.0.1', 7901), ServerHandler, False)
+                self.server.allow_reuse_address = True
+                self.server.server_bind()
+                self.server.server_activate()
+
+                self.server.some_data = bytearray([0xFE, 0xFE, 0x09, 0xD7, 0xEB, 0xFE, 0x0D])
+
+            def run(self):
+                # creating server socket
+                self.server.serve_forever()
+
+        server = ServerThread()
+        server.start()
+
+        reader = dataReader.EthernetDataReader(ipAddress='127.0.0.1', port=7901)
+        reader.connect()
+        read_data = reader.read()
+        reader.close_connection()
+        sleep(0.5)  # wait to finish closing connection
+        server.server.shutdown()
+        server.join()
+
+        self.assertEqual(read_data, server.server.some_data, 'Read data not the same')
+
     def test_write__without_connection(self):
         """Testing write without connection - we shouldn't get any errors"""
         self.reader.write(bytearray())
         self.assertTrue(True, True)
 
-    def _test_write__some_data(self):
+    def test_write__some_data(self):
         """Testing write to some created port"""
-        # TODO: works only at first time. Fix this later
+
+        class ServerHandler(BaseRequestHandler):
+            """Server request handler"""
+
+            def handle(self):
+                self.server.rec_data = self.request.recv(2048)
 
         class ServerThread(Thread):
+            """Server thread"""
             def __init__(self):
                 super(ServerThread, self).__init__()
-                self.rec_data = None
+                self.server = TCPServer(('127.0.0.1', 7900), ServerHandler, False)
+                self.server.allow_reuse_address = True
+                self.server.server_bind()
+                self.server.server_activate()
+
+                self.server.rec_data = None
 
             def run(self):
                 # creating server socket
-                rec_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                rec_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                rec_socket.bind(('localhost', 7902))
-                rec_socket.listen(1)
-                conn, _ = rec_socket.accept()
-                # trying to receive some data
-                data = conn.recv(1024)
-                if not data:
-                    self.rec_data = None
-                self.rec_data = data
-
-                # closing server side socket
-                # sleep(2)
-                # conn.close()
-                rec_socket.close()
+                self.server.serve_forever()
 
         server = ServerThread()
         server.start()
@@ -209,14 +242,15 @@ class EthernetDataReaderTest(unittest.TestCase):
         some_data = bytearray([0xFE, 0xFE, 0x09, 0xD7, 0xEB, 0xFE, 0x0D])
 
         # creating class with valid configuration
-        reader = dataReader.EthernetDataReader(ipAddress='127.0.0.1', port=7902)
+        reader = dataReader.EthernetDataReader(ipAddress='127.0.0.1', port=7900)
         reader.connect()
         reader.write(some_data)
-        sleep(1)
         reader.close_connection()
+        sleep(0.5)  # wait to finish closing connection
+        server.server.shutdown()
         server.join()
 
-        self.assertEqual(some_data, server.rec_data, 'Data not the same')
+        self.assertEqual(some_data, server.server.rec_data, 'Written data not the same')
 
     def test_connect__without_valid_configuration(self):
         """Trying to connect without configuration"""
