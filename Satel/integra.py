@@ -453,6 +453,28 @@ class Integra(QtCore.QObject):
         for i in range(zonesNumber):
             self.__zones.append(Zone('Zone ' + str(i)))
 
+        # registered functions
+        self.registered_functions = {
+            0x00: self.CA.assignActiveByBits,
+            0x01: self.CA.assignTamperByBits,
+            0x02: self.CA.assignAlarmByBits,
+            0x03: self.CA.assignTamperByBits,
+            0x04: self.CA.assignAlarmMemoryByBits,
+            0x05: self.CA.assignTamperMemoryByBits,
+            0x09: self.CA.assignZoneArmedByBits,
+            0x0A: self.CA.assignZoneArmedByBits,
+            0x0D: self.CA.assignZoneCode1ByBits,
+            0x0E: self.CA.assignZoneEntryTimeByBits,
+            0x0F: self.CA.assignZoneExitTimeByBits,
+            0x10: self.CA.assignZoneExitTimeByBits,
+            0x13: self.CA.assignZoneAlarmByBits,
+            0x14: self.CA.assignZoneFireAlarmByBits,
+            0x15: self.CA.assignZoneAlarmMemoryByBits,
+            0x16: self.CA.assignZoneFireAlarmMemoryByBits,
+            0x17: self.CA.assignOutsByBits,
+            0x28: self.CA.assignTamperByBits,
+            0x29: self.CA.assignTamperMemoryByBits, }
+
         # TODO: delete after tests. Starts testing thread
         # self.th=Thread(self)
         # self.th.start()

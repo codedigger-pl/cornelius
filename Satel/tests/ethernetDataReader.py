@@ -61,6 +61,40 @@ class EthernetDataReaderTest(unittest.TestCase):
 
         self.assertEqual(read_data, server.server.some_data, 'Read data not the same')
 
+    def test_read__lost_connection(self):
+        """Testing read some data from socket"""
+        class ServerHandler(BaseRequestHandler):
+            """Server request handler"""
+
+            def handle(self):
+                sleep(3)
+
+        class ServerThread(Thread):
+            """Server thread"""
+            def __init__(self):
+                super(ServerThread, self).__init__()
+                self.server = TCPServer(('127.0.0.1', 7901), ServerHandler, False)
+                self.server.allow_reuse_address = True
+                self.server.server_bind()
+                self.server.server_activate()
+
+            def run(self):
+                # creating server socket
+                self.server.serve_forever()
+
+        server = ServerThread()
+        server.start()
+
+        reader = EthernetDataReader(ipAddress='127.0.0.1', port=7901)
+        reader.connect()
+        read_data = reader.read()
+        server.server.shutdown()
+        sleep(0.5)  # wait to finish closing connection
+        reader.close_connection()
+        server.join()
+
+        self.assertEqual(read_data, bytearray(), 'Read data on lost connection not empty')
+
     def test_write__without_connection(self):
         """Testing write without connection - we shouldn't get any errors"""
         self.reader.write(bytearray())

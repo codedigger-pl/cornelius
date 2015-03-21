@@ -194,42 +194,52 @@ class DataParser(QtCore.QThread):
     Class for parsing data from alarm system.
     """
 
+    # functions dictionary
+    _functions = {}
+
     def __init__(self):
         """Initializing class"""
         super(DataParser, self).__init__()
 
-        self.CA = None
+        self.thread_enabled = True
+
+        self._CA = None
         self.port = None
         self.time = 60
         self.tasks = []
 
-    def __rl(self, data):
+        # self._functions[0x7F] = self.parse7FResponse
+
+    def __rl(self, data):  # pragma: no cover
         warn('This method is deprecated. Use rotate_left instead.', DeprecationWarning)
         return rotate_left(data)
 
-    def __hi(self, data):
+    def __hi(self, data):  # pragma: no cover
         warn('This method is deprecated. Use high_byte instead.', DeprecationWarning)
         return high_byte(data)
 
-    def __lo(self, data):
+    def __lo(self, data):  # pragma: no cover
         warn('This method is deprecated. Use low_byte instead.', DeprecationWarning)
         return low_byte(data)
 
-    def __calculateCRC(self, data):
+    def __calculateCRC(self, data):  # pragma: no cover
         warn('This method is deprecated. Use calculate_crc instead.', DeprecationWarning)
         return calculate_crc(data)
 
-    def setTime(self, time):
+    def setTime(self, time):  # pragma: no cover
         """Setting time between reading data from CA"""
         warn('This method is deprecated. Use time directly.', DeprecationWarning)
         self.time = time
 
-    def assignCA(self, CA):
+    def assignCA(self, CA):  # pragma: no cover
         """Assigning alarm system"""
-        warn('This method is deprecated. Use CA directly.', DeprecationWarning)
-        self.CA = CA
+        warn('This method will be deprecated.', PendingDeprecationWarning)
+        self._CA = CA
+        for function in CA.registered_functions:
+            self.add_function(function_code=function,
+                              function_body=CA.registered_functions[function])
 
-    def assignPort(self, port):
+    def assignPort(self, port):  # pragma: no cover
         """Assigning communication port"""
         warn('This method is deprecated. Use port directly.', DeprecationWarning)
         self.port = port
@@ -304,6 +314,14 @@ class DataParser(QtCore.QThread):
 
         return w_data
 
+    def add_function(self, function_code, function_body):
+        """ Adding function to monitoring from CA
+        :param function_code: function byte code
+        :param function_body: callable function name
+        :return: none
+        """
+        self._functions[function_code] = function_body
+
     def parseData(self, data):
         """ parseData
         Parsing data and invoking correct functions.
@@ -312,38 +330,38 @@ class DataParser(QtCore.QThread):
         :return:
         """
         # functions list with theirs codes
-        functions = {0x00: self.CA.assignActiveByBits,
-                     0x01: self.CA.assignTamperByBits,
-                     0x02: self.CA.assignAlarmByBits,
-                     0x03: self.CA.assignTamperByBits,
-                     0x04: self.CA.assignAlarmMemoryByBits,
-                     0x05: self.CA.assignTamperMemoryByBits,
-                     0x09: self.CA.assignZoneArmedByBits,
-                     0x0A: self.CA.assignZoneArmedByBits,
-                     0x0D: self.CA.assignZoneCode1ByBits,
-                     0x0E: self.CA.assignZoneEntryTimeByBits,
-                     0x0F: self.CA.assignZoneExitTimeByBits,
-                     0x10: self.CA.assignZoneExitTimeByBits,
-                     0x13: self.CA.assignZoneAlarmByBits,
-                     0x14: self.CA.assignZoneFireAlarmByBits,
-                     0x15: self.CA.assignZoneAlarmMemoryByBits,
-                     0x16: self.CA.assignZoneFireAlarmMemoryByBits,
-                     0x17: self.CA.assignOutsByBits,
-                     0x28: self.CA.assignTamperByBits,
-                     0x29: self.CA.assignTamperMemoryByBits,
-                     0x7F: self.parse7FResponse,
-                     }
+        # functions = {0x00: self.CA.assignActiveByBits,
+        #              0x01: self.CA.assignTamperByBits,
+        #              0x02: self.CA.assignAlarmByBits,
+        #              0x03: self.CA.assignTamperByBits,
+        #              0x04: self.CA.assignAlarmMemoryByBits,
+        #              0x05: self.CA.assignTamperMemoryByBits,
+        #              0x09: self.CA.assignZoneArmedByBits,
+        #              0x0A: self.CA.assignZoneArmedByBits,
+        #              0x0D: self.CA.assignZoneCode1ByBits,
+        #              0x0E: self.CA.assignZoneEntryTimeByBits,
+        #              0x0F: self.CA.assignZoneExitTimeByBits,
+        #              0x10: self.CA.assignZoneExitTimeByBits,
+        #              0x13: self.CA.assignZoneAlarmByBits,
+        #              0x14: self.CA.assignZoneFireAlarmByBits,
+        #              0x15: self.CA.assignZoneAlarmMemoryByBits,
+        #              0x16: self.CA.assignZoneFireAlarmMemoryByBits,
+        #              0x17: self.CA.assignOutsByBits,
+        #              0x28: self.CA.assignTamperByBits,
+        #              0x29: self.CA.assignTamperMemoryByBits,
+        #              0x7F: self.parse7FResponse,
+        #              }
 
         correct_data = 0
         for d in data[1:]:
             correct_data = correct_data << 8
-            correct_data += self.CA.changeByte(d)
+            correct_data += change_byte(d)
 
         try:
             if data[0] == 0x7F:
                 self.parse7FResponse(data[1:])
             else:
-                function = functions[data[0]]
+                function = self._functions[data[0]]
                 function(correct_data)
         except Exception as e:
             print('Error while calling function', data[0])
@@ -362,7 +380,7 @@ class DataParser(QtCore.QThread):
             mask = mask >> 1
             task += 1
 
-    def startConnection(self):
+    def startConnection(self):  # pragma: no cover
         """This method will be removed after tests"""
         warn('Do not use this method', Warning)
         self.sleep(self.time)
@@ -371,26 +389,28 @@ class DataParser(QtCore.QThread):
         """Thread loop function"""
 
         # adding requests for data
-        while(True):
-            self.tasks.append([0x00, ])
-            self.tasks.append([0x17, ])
-            self.tasks.append([0x01, ])
-            self.tasks.append([0x02, ])
-            self.tasks.append([0x03, ])
-            self.tasks.append([0x04, ])
-            self.tasks.append([0x05, ])
-            self.tasks.append([0x09, ])
-            self.tasks.append([0x0A, ])
-            self.tasks.append([0x0D, ])
-            self.tasks.append([0x0E, ])
-            self.tasks.append([0x0F, ])
-            self.tasks.append([0x10, ])
-            self.tasks.append([0x13, ])
-            self.tasks.append([0x14, ])
-            self.tasks.append([0x15, ])
-            self.tasks.append([0x16, ])
-            self.tasks.append([0x28, ])
-            self.tasks.append([0x29, ])
+        while(self.thread_enabled):
+            # self.tasks.append([0x00, ])
+            # self.tasks.append([0x17, ])
+            # self.tasks.append([0x01, ])
+            # self.tasks.append([0x02, ])
+            # self.tasks.append([0x03, ])
+            # self.tasks.append([0x04, ])
+            # self.tasks.append([0x05, ])
+            # self.tasks.append([0x09, ])
+            # self.tasks.append([0x0A, ])
+            # self.tasks.append([0x0D, ])
+            # self.tasks.append([0x0E, ])
+            # self.tasks.append([0x0F, ])
+            # self.tasks.append([0x10, ])
+            # self.tasks.append([0x13, ])
+            # self.tasks.append([0x14, ])
+            # self.tasks.append([0x15, ])
+            # self.tasks.append([0x16, ])
+            # self.tasks.append([0x28, ])
+            # self.tasks.append([0x29, ])
+            for task in self._functions:
+                self.tasks.append([task, ])
 
             # Opening port for connection
             try:
