@@ -13,5 +13,8 @@ from Satel.tests.ethernetDataReader import EthernetDataReaderTest
 # enabling satel DataParser tests
 from Satel.tests.dataParser import DataParserTest
 
+# enabling byte functions tests
+from Satel.tests.byteFunctions import FunctionsTest
+
 # enabling satel Integra tests
 from Satel.tests.integra import DefaultIntegraTests, Integra128Test, Integra24Test, Integra256Test, Integra32Test, Integra64Test

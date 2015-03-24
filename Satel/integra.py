@@ -4,23 +4,7 @@
 from PyQt4 import QtCore
 from warnings import warn
 
-
-def change_byte(byte):
-    """Changing bytes to human readable.
-    View input numbers from CA: 8,7,6,5,4,3,2,1 16,15,14,13,12,11,10,9
-    View input numbers from system: 1,2,3,4,5,6,7,8 9,10,11,12,13,14,15,16
-    Data from CA: 0101 1001
-    Data, which we can use: 1010 1001
-
-    input: byte - int with single byte from CA
-    output: useful data"""
-
-    result = 0b00000000
-    for i in range(8):
-        # some magic here
-        if byte & (0b10000000 >> i):
-            result = result | (0b1 << i)
-    return result
+from .byteFunctions import change_byte
 
 
 class Detector(QtCore.QObject):

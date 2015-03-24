@@ -7,46 +7,7 @@ from time import sleep
 from PyQt4 import QtCore
 from warnings import warn
 
-from Satel.integra import change_byte
-
-
-def rotate_left(data):
-    """ Rotating bits to the left with carriage.
-
-    :param data: 2 bytes
-    :return: rotated data
-    """
-    if data > 0xFFFF:
-        raise TypeError('Data can not be larger than 2 bytes (16 bits)')
-    # moving bits left with cutting to two bytes
-    result = ((data << 1) & 0b1111111111111111)
-    # moving oldest bit to first bit
-    result = result | ((data & 0b1000000000000000) >> 15)
-    return result
-
-
-def high_byte(data):
-    """ Returning highest byte.
-
-    :param data: 2 bytes
-    :return: highest byte from data
-    """
-    if data > 0xFFFF:
-        raise TypeError('Data can not be larger than 2 bytes (16 bits)')
-
-    return (data & 0xff00) // 256
-
-
-def low_byte(data):
-    """ Returning lowest byte.
-
-    :param data: 2 bytes
-    :return: lowest byte from data
-    """
-    if data > 0xFFFF:
-        raise TypeError('Data can not be larger than 2 bytes (16 bits)')
-
-    return data & 0xff
+from .byteFunctions import change_byte, rotate_left, low_byte, high_byte
 
 
 def calculate_crc(data):
