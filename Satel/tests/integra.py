@@ -22,22 +22,6 @@ class DefaultIntegraTests(unittest.TestCase):
         self.assertEqual(outsCount, len(c.getOuts()), 'Invalid outs count')
         self.assertEqual(zonesCount, len(c.getZones()), 'Invalid zones count')
 
-    def testCzujek(self):
-        c = Integra(detectorsNumber=128, outsNumber=128, zonesNumber=32)
-        for i in c.getDetectors():
-            self.assertEqual(False, i.alarm, "Niewlasciwy stan")
-            self.assertEqual(False, i.active, "Niewlasciwy stan")
-            self.assertEqual(False, i.tamper, "Niewlasciwy stan")
-            self.assertEqual(False, i.tamperMemory, "Niewlasciwy stan")
-            i.setActive()
-            i.setAlarm()
-            i.setTamper()
-            i.setTamperMemory()
-            self.assertEqual(True, i.alarm, "Niewlasciwy stan")
-            self.assertEqual(True, i.active, "Niewlasciwy stan")
-            self.assertEqual(True, i.tamper, "Niewlasciwy stan")
-            self.assertEqual(True, i.tamperMemory, "Niewlasciwy stan")
-
     def testAssignAlarmByBits(self):
         c = Integra(detectorsNumber=128, outsNumber=128, zonesNumber=32)
         c.assignAlarmByBits(0b00100000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)

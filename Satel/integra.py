@@ -15,7 +15,7 @@ class Detector(QtCore.QObject):
     # Qt signals
     hasChanged = QtCore.pyqtSignal()
 
-    def __init__(self, name=""):
+    def __init__(self, name=''):
         """ Initializing class
 
         :param name: string with detector's name
@@ -23,119 +23,200 @@ class Detector(QtCore.QObject):
         """
         super(Detector, self).__init__()
 
-        self.name = name
-        self.active = False
-        self.alarm = False
-        self.alarmMemory = False
-        self.tamper = False
-        self.tamperMemory = False
+        self._name = name
+        self._active = False
+        self._alarm = False
+        self._alarm_memory = False
+        self._tamper = False
+        self._tamper_memory = False
 
-    def setName(self, name):
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, val):
+        self._name = str(val)
+        self.hasChanged.emit()
+
+    @property
+    def active(self):
+        return self._active
+
+    @active.setter
+    def active(self, val):
+        if not isinstance(val, bool):
+            raise TypeError('Value should be a boolean value only')
+        self._active = val
+        self.hasChanged.emit()
+
+    @property
+    def alarm(self):
+        return self._alarm
+
+    @alarm.setter
+    def alarm(self, val):
+        if not isinstance(val, bool):
+            raise TypeError('Value should be a boolean value only')
+        self._alarm = val
+        self.hasChanged.emit()
+
+    @property
+    def alarm_memory(self):
+        return self._alarm_memory
+
+    @alarm_memory.setter
+    def alarm_memory(self, val):
+        if not isinstance(val, bool):
+            raise TypeError('Value should be a boolean value only')
+        self._alarm_memory = val
+        self.hasChanged.emit()
+
+    @property
+    def tamper(self):
+        return self._tamper
+
+    @tamper.setter
+    def tamper(self, val):
+        if not isinstance(val, bool):
+            raise TypeError('Value should be a boolean value only')
+        self._tamper = val
+        self.hasChanged.emit()
+
+    @property
+    def tamper_memory(self):
+        return self._tamper_memory
+
+    @tamper_memory.setter
+    def tamper_memory(self, val):
+        if not isinstance(val, bool):
+            raise TypeError('Value should be a boolean value only')
+        self._tamper_memory = val
+        self.hasChanged.emit()
+
+    def setName(self, name):  # pragma: no cover
         """
         :param name: (str) new detector name
         :return: none
         """
-        self.name = name
+        warn('This method is deprecated. Use name directly.', DeprecationWarning)
+        self._name = name
         self.hasChanged.emit()
 
-    def setAlarm(self):
+    def setAlarm(self):  # pragma: no cover
         """ Setting detector to alarm state
 
         :return: none
         """
-        self.alarm = True
+        warn('This method is deprecated. Use alarm directly.', DeprecationWarning)
+        self._alarm = True
         self.hasChanged.emit()
 
-    def setAlarmMemory(self):
+    def setAlarmMemory(self):  # pragma: no cover
         """ Setting detector to alarm memory state
         :return: none
         """
-        self.alarmMemory = True
+        warn('This method is deprecated. Use alarm_memory directly.', DeprecationWarning)
+        self._alarm_memory = True
         self.hasChanged.emit()
 
-    def setActive(self):
+    def setActive(self):  # pragma: no cover
         """ Setting detector to active state.
 
         :return: none
         """
-        self.active = True
+        warn('This method is deprecated. Use active directly.', DeprecationWarning)
+        self._active = True
         self.hasChanged.emit()
 
-    def setTamper(self):
+    def setTamper(self):  # pragma: no cover
         """ Setting detector to tamper (sabotage) state
 
         :return: none
         """
-        self.tamper = True
+        warn('This method is deprecated. Use tamper directly.', DeprecationWarning)
+        self._tamper = True
         self.hasChanged.emit()
 
-    def setTamperMemory(self):
+    def setTamperMemory(self):  # pragma: no cover
         """ Setting detector to tamper memory state.
 
         :return: none
         """
-        self.tamperMemory = True
+        warn('This method is deprecated. Use tamper_memory directly.', DeprecationWarning)
+        self._tamper_memory = True
         self.hasChanged.emit()
 
-    def clearAlarm(self):
+    def clearAlarm(self):  # pragma: no cover
         """ Clearing alarm state from detector.
 
         :return: none
         """
-        self.alarm = False
+        warn('This method is deprecated. Use alarm directly.', DeprecationWarning)
+        self._alarm = False
         self.hasChanged.emit()
 
-    def clearAlarmMemory(self):
+    def clearAlarmMemory(self):  # pragma: no cover
         """ Clearing alarm memory state from detector.
 
         :return: none
         """
-        self.alarmMemory = False
+        warn('This method is deprecated. Use alarm_memory directly.', DeprecationWarning)
+        self._alarm_memory = False
         self.hasChanged.emit()
 
-    def clearActive(self):
+    def clearActive(self):  # pragma: no cover
         """ Clearing active state from detector.
 
         :return: none
         """
-        self.active = False
+        warn('This method is deprecated. Use active directly.', DeprecationWarning)
+        self._active = False
         self.hasChanged.emit()
 
-    def clearTamper(self):
+    def clearTamper(self):  # pragma: no cover
         """ Clearing tamper state from detector.
 
         :return: none
         """
-        self.tamper = False
+        warn('This method is deprecated. Use tamper directly.', DeprecationWarning)
+        self._tamper = False
         self.hasChanged.emit()
 
-    def clearTamperMemory(self):
+    def clearTamperMemory(self):  # pragma: no cover
         """ Clearing tamper memory state from detector.
 
         :return: none
         """
-        self.tamperMemory = False
+        warn('This method is deprecated. Use tamper_memory directly.', DeprecationWarning)
+        self._tamper_memory = False
         self.hasChanged.emit()
 
     """Functions for get data from class attributes"""
     # According to new functions in Python3, setting, clearing and getting methods will be changed
-    def getActive(self):
-        return self.active
+    def getActive(self):  # pragma: no cover
+        warn('This method is deprecated. Use active directly.', DeprecationWarning)
+        return self._active
 
-    def getName(self):
-        return self.name
+    def getName(self):  # pragma: no cover
+        warn('This method is deprecated. Use name directly.', DeprecationWarning)
+        return self._name
 
-    def getAlarm(self):
-        return self.alarm
+    def getAlarm(self):  # pragma: no cover
+        warn('This method is deprecated. Use alarm directly.', DeprecationWarning)
+        return self._alarm
 
-    def getAlarmMemory(self):
-        return self.alarmMemory
+    def getAlarmMemory(self):  # pragma: no cover
+        warn('This method is deprecated. Use alarm_memory directly.', DeprecationWarning)
+        return self._alarm_memory
 
-    def getTamper(self):
-        return self.tamper
+    def getTamper(self):  # pragma: no cover
+        warn('This method is deprecated. Use tamper directly.', DeprecationWarning)
+        return self._tamper
 
-    def getTamperMemory(self):
-        return self.tamperMemory
+    def getTamperMemory(self):  # pragma: no cover
+        warn('This method is deprecated. Use tamper_memory directly.', DeprecationWarning)
+        return self._tamper_memory
 
 
 class Out(QtCore.QObject):
@@ -146,7 +227,7 @@ class Out(QtCore.QObject):
     # Qt signals
     hasChanged = QtCore.pyqtSignal()
 
-    def __init__(self, name=""):
+    def __init__(self, name=''):
         """ Initializing class.
 
         :param name: out name
