@@ -235,40 +235,65 @@ class Out(QtCore.QObject):
         """
         super(Out, self).__init__()
 
-        self.name = name
-        self.active = False
+        self._name = name
+        self._active = False
 
-    def setName(self, name):
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, val):
+        self._name = val
+        self.hasChanged.emit()
+
+    @property
+    def active(self):
+        return self._active
+
+    @active.setter
+    def active(self, val):
+        if not isinstance(val, bool):
+            raise TypeError('Value should be a boolean value only')
+        self._active = val
+        self.hasChanged.emit()
+
+    def setName(self, name):  # pragma: no cover
         """ Changes out name.
 
         :param name: new name
         :return:
         """
-        self.name = name
+        warn('This method is deprecated. Use name directly.', DeprecationWarning)
+        self._name = name
         self.hasChanged.emit()
 
-    def setActive(self):
+    def setActive(self):  # pragma: no cover
         """ Setting out to active state.
 
         :return:
         """
-        self.active = True
+        warn('This method is deprecated. Use active directly.', DeprecationWarning)
+        self._active = True
         self.hasChanged.emit()
 
-    def clearActive(self):
+    def clearActive(self):  # pragma: no cover
         """ Clearing active state.
 
         :return:
         """
-        self.active = False
+        warn('This method is deprecated. Use active directly.', DeprecationWarning)
+        self._active = False
         self.hasChanged.emit()
 
     """Function returns class attributes"""
-    def getActive(self):
-        return self.active
+    def getActive(self):  # pragma: no cover
+        warn('This method is deprecated. Use active directly.', DeprecationWarning)
+        return self._active
 
-    def getName(self):
-        return self.name
+    def getName(self):  # pragma: no cover
+        warn('This method is deprecated. Use name directly.', DeprecationWarning)
+        return self._name
 
 
 class Zone(QtCore.QObject):

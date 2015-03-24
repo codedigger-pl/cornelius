@@ -19,3 +19,4 @@ from Satel.tests.byteFunctions import FunctionsTest
 # enabling satel Integra tests
 from Satel.tests.integra import DefaultIntegraTests, Integra128Test, Integra24Test, Integra256Test, Integra32Test, Integra64Test
 from Satel.tests.detector import DetectorTest
+from Satel.tests.out import OutTest
