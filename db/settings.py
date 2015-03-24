@@ -13,8 +13,8 @@
 SETTINGS_PY_VERSION=(0,0,1)
 
 #-------------------------------------------------------------- database sttings
-db_userName='integrate'
-db_userPassword='integrate'
+db_userName='cornelius'
+db_userPassword='cornelius'
 db_host='localhost'
 db_port='5432'
 db_name='cornelius'
