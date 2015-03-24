@@ -93,11 +93,11 @@ class DataReader(QtCore.QObject):
         raise NotImplementedError('Method not implemented: disconnect')
 
 
-class RS232DataReader(DataReader):
+class RS232DataReader(DataReader):  # pragma: no cover
     """ RS232DataReader
 
     Class for communication with Integra by RS port.
-    TODO: finish it this class
+    TODO: finish this class
     """
 
     def __init__(self, port):
@@ -202,13 +202,25 @@ class DataParser(QtCore.QThread):
         super(DataParser, self).__init__()
 
         self.thread_enabled = True
+        # self._CA = None
 
-        self._CA = None
+        self.CA = None
         self.port = None
         self.time = 60
         self.tasks = []
 
         # self._functions[0x7F] = self.parse7FResponse
+
+    # @property
+    # def CA(self):
+    #     return self._CA
+    #
+    # @CA.setter
+    # def CA(self, val):
+    #     self._CA = val
+    #     for function in val.registered_functions:
+    #         self.add_function(function_code=function,
+    #                           function_body=val.registered_functions[function])
 
     def __rl(self, data):  # pragma: no cover
         warn('This method is deprecated. Use rotate_left instead.', DeprecationWarning)
@@ -234,7 +246,7 @@ class DataParser(QtCore.QThread):
     def assignCA(self, CA):  # pragma: no cover
         """Assigning alarm system"""
         warn('This method will be deprecated.', PendingDeprecationWarning)
-        self._CA = CA
+        self.CA = CA
         for function in CA.registered_functions:
             self.add_function(function_code=function,
                               function_body=CA.registered_functions[function])
@@ -316,10 +328,14 @@ class DataParser(QtCore.QThread):
 
     def add_function(self, function_code, function_body):
         """ Adding function to monitoring from CA
+
         :param function_code: function byte code
-        :param function_body: callable function name
+        :param function_body: callable object
         :return: none
         """
+        if function_code > 0xFF:
+            raise TypeError('Function code can not be larger than one byte')
+
         self._functions[function_code] = function_body
 
     def parseData(self, data):
@@ -327,7 +343,7 @@ class DataParser(QtCore.QThread):
         Parsing data and invoking correct functions.
 
         :param data: data from system
-        :return:
+        :return: called function returned data
         """
         # functions list with theirs codes
         # functions = {0x00: self.CA.assignActiveByBits,
@@ -352,6 +368,7 @@ class DataParser(QtCore.QThread):
         #              0x7F: self.parse7FResponse,
         #              }
 
+        ret = None
         correct_data = 0
         for d in data[1:]:
             correct_data = correct_data << 8
@@ -359,13 +376,15 @@ class DataParser(QtCore.QThread):
 
         try:
             if data[0] == 0x7F:
-                self.parse7FResponse(data[1:])
+                ret = self.parse7FResponse(data[1:])
             else:
                 function = self._functions[data[0]]
-                function(correct_data)
+                ret = function(correct_data)
         except Exception as e:
             print('Error while calling function', data[0])
             print(e)
+        finally:
+            return ret
 
     def parse7FResponse(self, data):
         """Parsing 7F response"""
@@ -409,6 +428,7 @@ class DataParser(QtCore.QThread):
             # self.tasks.append([0x16, ])
             # self.tasks.append([0x28, ])
             # self.tasks.append([0x29, ])
+
             for task in self._functions:
                 self.tasks.append([task, ])
 

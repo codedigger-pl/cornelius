@@ -71,7 +71,7 @@ class FunctionsTest(unittest.TestCase):
         try:
             dataReader.rotate_left(0xFFFFF)
             self.fail('Not an exception was thrown')
-        except TypeError as e:
+        except Exception as e:
             self.assertEqual(type(e), TypeError, 'Invalid exception type')
 
     def test_crc(self):

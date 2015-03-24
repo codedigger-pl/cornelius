@@ -17,13 +17,13 @@ class DefaultIntegraTests(unittest.TestCase):
         detectorsCount = randint(1, 256)
         outsCount = randint(1, 256)
         zonesCount = randint(1, 32)
-        c = Integra(detectorsCount, outsCount, zonesCount)
+        c = Integra(detectorsNumber=detectorsCount, outsNumber=outsCount, zonesNumber=zonesCount)
         self.assertEqual(detectorsCount, len(c.getDetectors()), 'Invalid detectors count')
         self.assertEqual(outsCount, len(c.getOuts()), 'Invalid outs count')
         self.assertEqual(zonesCount, len(c.getZones()), 'Invalid zones count')
 
     def testCzujek(self):
-        c = Integra(128, 128, 32)
+        c = Integra(detectorsNumber=128, outsNumber=128, zonesNumber=32)
         for i in c.getDetectors():
             self.assertEqual(False, i.alarm, "Niewlasciwy stan")
             self.assertEqual(False, i.active, "Niewlasciwy stan")
@@ -39,7 +39,7 @@ class DefaultIntegraTests(unittest.TestCase):
             self.assertEqual(True, i.tamperMemory, "Niewlasciwy stan")
 
     def testAssignAlarmByBits(self):
-        c = Integra(128, 128, 32)
+        c = Integra(detectorsNumber=128, outsNumber=128, zonesNumber=32)
         c.assignAlarmByBits(0b00100000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)
         self.assertEqual(True, c.getDetector(2).getAlarm(), "Blad zapisu w bitach")
         self.assertEqual(True, c.getDetector(13).getAlarm(), "Blad zapisu w bitach")
@@ -55,7 +55,7 @@ class DefaultIntegraTests(unittest.TestCase):
                 self.assertEqual(False, c.getDetector(i).getAlarm(), "Blad zapisu w bitach w " + str(i))
 
     def testAssignActiveByBits(self):
-        c = Integra(128, 128, 32)
+        c = Integra(detectorsNumber=128, outsNumber=128, zonesNumber=32)
         c.assignActiveByBits(0b00100000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)
         self.assertEqual(True, c.getDetector(2).getActive(), "Blad zapisu w bitach")
         self.assertEqual(True, c.getDetector(13).getActive(), "Blad zapisu w bitach")
@@ -71,7 +71,7 @@ class DefaultIntegraTests(unittest.TestCase):
                 self.assertEqual(False, c.getDetector(i).getActive(), "Blad zapisu w bitach w " + str(i))
 
     def testAssignAlarmMemoryByBits(self):
-        c = Integra(128, 128, 32)
+        c = Integra(detectorsNumber=128, outsNumber=128, zonesNumber=32)
         c.assignAlarmMemoryByBits(0b00100000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)
         self.assertEqual(True, c.getDetector(2).getAlarmMemory(), "Blad zapisu w bitach")
         self.assertEqual(True, c.getDetector(13).getAlarmMemory(), "Blad zapisu w bitach")
@@ -87,7 +87,7 @@ class DefaultIntegraTests(unittest.TestCase):
                 self.assertEqual(False, c.getDetector(i).getAlarmMemory(), "Blad zapisu w bitach w " + str(i))
 
     def testAssignTamperByBits(self):
-        c = Integra(128, 128, 32)
+        c = Integra(detectorsNumber=128, outsNumber=128, zonesNumber=32)
         c.assignTamperByBits(0b00100000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)
         self.assertEqual(True, c.getDetector(2).getTamper(), "Blad zapisu w bitach")
         self.assertEqual(True, c.getDetector(13).getTamper(), "Blad zapisu w bitach")
@@ -103,7 +103,7 @@ class DefaultIntegraTests(unittest.TestCase):
                 self.assertEqual(False, c.getDetector(i).getTamper(), "Blad zapisu w bitach w " + str(i))
 
     def testAssignTamperMemoryByBits(self):
-        c = Integra(128, 128, 32)
+        c = Integra(detectorsNumber=128, outsNumber=128, zonesNumber=32)
         c.assignTamperMemoryByBits(0b00100000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)
         self.assertEqual(True, c.getDetector(2).getTamperMemory(), "Blad zapisu w bitach")
         self.assertEqual(True, c.getDetector(13).getTamperMemory(), "Blad zapisu w bitach")
@@ -119,7 +119,7 @@ class DefaultIntegraTests(unittest.TestCase):
                 self.assertEqual(False, c.getDetector(i).getTamperMemory(), "Blad zapisu w bitach w " + str(i))
 
     def testAssignOutsByBits(self):
-        c = Integra(128, 128, 32)
+        c = Integra(detectorsNumber=128, outsNumber=128, zonesNumber=32)
         c.assignOutsByBits(0b00100000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)
         self.assertEqual(True, c.getOut(2).getActive(), "Blad zapisu w bitach")
         self.assertEqual(True, c.getOut(13).getActive(), "Blad zapisu w bitach")
@@ -135,7 +135,7 @@ class DefaultIntegraTests(unittest.TestCase):
                 self.assertEqual(False, c.getOut(i).getActive(), "Blad zapisu w bitach w " + str(i))
 
     def testZoneArmedByBits(self):
-        c = Integra(128, 128, 32)
+        c = Integra(detectorsNumber=128, outsNumber=128, zonesNumber=32)
         c.assignZoneArmedByBits(0b00100000000001000000000000000001)
         self.assertEqual(True, c.getZone(2).getArmed(), "Blad zapisu w bitach")
         self.assertEqual(True, c.getZone(13).getArmed(), "Blad zapisu w bitach")
@@ -151,7 +151,7 @@ class DefaultIntegraTests(unittest.TestCase):
                 self.assertEqual(False, c.getZone(i).getArmed(), "Blad zapisu w bitach w " + str(i))
 
     def testZoneCode1ByBits(self):
-        c = Integra(128, 128, 32)
+        c = Integra(detectorsNumber=128, outsNumber=128, zonesNumber=32)
         c.assignZoneCode1ByBits(0b00100000000001000000000000000001)
         self.assertEqual(True, c.getZone(2).getCode1(), "Blad zapisu w bitach")
         self.assertEqual(True, c.getZone(13).getCode1(), "Blad zapisu w bitach")
@@ -167,7 +167,7 @@ class DefaultIntegraTests(unittest.TestCase):
                 self.assertEqual(False, c.getZone(i).getCode1(), "Blad zapisu w bitach w " + str(i))
 
     def testZoneEntryTimeByBits(self):
-        c = Integra(128, 128, 32)
+        c = Integra(detectorsNumber=128, outsNumber=128, zonesNumber=32)
         c.assignZoneEntryTimeByBits(0b00100000000001000000000000000001)
         self.assertEqual(True, c.getZone(2).getEntryTime(), "Blad zapisu w bitach")
         self.assertEqual(True, c.getZone(13).getEntryTime(), "Blad zapisu w bitach")
@@ -183,7 +183,7 @@ class DefaultIntegraTests(unittest.TestCase):
                 self.assertEqual(False, c.getZone(i).getEntryTime(), "Blad zapisu w bitach w " + str(i))
 
     def testZoneExitTimeByBits(self):
-        c = Integra(128, 128, 32)
+        c = Integra(detectorsNumber=128, outsNumber=128, zonesNumber=32)
         c.assignZoneExitTimeByBits(0b00100000000001000000000000000001)
         self.assertEqual(True, c.getZone(2).getExitTime(), "Blad zapisu w bitach")
         self.assertEqual(True, c.getZone(13).getExitTime(), "Blad zapisu w bitach")
@@ -199,7 +199,7 @@ class DefaultIntegraTests(unittest.TestCase):
                 self.assertEqual(False, c.getZone(i).getExitTime(), "Blad zapisu w bitach w " + str(i))
 
     def testZoneAlarmByBits(self):
-        c = Integra(128, 128, 32)
+        c = Integra(detectorsNumber=128, outsNumber=128, zonesNumber=32)
         c.assignZoneAlarmByBits(0b00100000000001000000000000000001)
         self.assertEqual(True, c.getZone(2).getAlarm(), "Blad zapisu w bitach")
         self.assertEqual(True, c.getZone(13).getAlarm(), "Blad zapisu w bitach")
@@ -215,7 +215,7 @@ class DefaultIntegraTests(unittest.TestCase):
                 self.assertEqual(False, c.getZone(i).getAlarm(), "Blad zapisu w bitach w " + str(i))
 
     def testZoneAlarmMemoryByBits(self):
-        c = Integra(128, 128, 32)
+        c = Integra(detectorsNumber=128, outsNumber=128, zonesNumber=32)
         c.assignZoneAlarmMemoryByBits(0b00100000000001000000000000000001)
         self.assertEqual(True, c.getZone(2).getAlarmMemory(), "Blad zapisu w bitach")
         self.assertEqual(True, c.getZone(13).getAlarmMemory(), "Blad zapisu w bitach")
@@ -231,7 +231,7 @@ class DefaultIntegraTests(unittest.TestCase):
                 self.assertEqual(False, c.getZone(i).getAlarmMemory(), "Blad zapisu w bitach w " + str(i))
 
     def testZoneFireAlarmByBits(self):
-        c = Integra(128, 128, 32)
+        c = Integra(detectorsNumber=128, outsNumber=128, zonesNumber=32)
         c.assignZoneFireAlarmByBits(0b00100000000001000000000000000001)
         self.assertEqual(True, c.getZone(2).getFireAlarm(), "Blad zapisu w bitach")
         self.assertEqual(True, c.getZone(13).getFireAlarm(), "Blad zapisu w bitach")
@@ -247,7 +247,7 @@ class DefaultIntegraTests(unittest.TestCase):
                 self.assertEqual(False, c.getZone(i).getFireAlarm(), "Blad zapisu w bitach w " + str(i))
 
     def testZoneFireAlarmMemoryByBits(self):
-        c = Integra(128, 128, 32)
+        c = Integra(detectorsNumber=128, outsNumber=128, zonesNumber=32)
         c.assignZoneFireAlarmMemoryByBits(0b00100000000001000000000000000001)
         self.assertEqual(True, c.getZone(2).getFireAlarmMemory(), "Blad zapisu w bitach")
         self.assertEqual(True, c.getZone(13).getFireAlarmMemory(), "Blad zapisu w bitach")

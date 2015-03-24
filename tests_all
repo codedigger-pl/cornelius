@@ -14,4 +14,4 @@ from Satel.tests.ethernetDataReader import EthernetDataReaderTest
 from Satel.tests.dataParser import DataParserTest
 
 # enabling satel Integra tests
-# from Satel.tests.integra import Integra128Test, Integra24Test, Integra256Test, Integra32Test, Integra64Test
+from Satel.tests.integra import DefaultIntegraTests, Integra128Test, Integra24Test, Integra256Test, Integra32Test, Integra64Test

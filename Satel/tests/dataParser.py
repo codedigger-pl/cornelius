@@ -71,6 +71,44 @@ class DataParserTest(unittest.TestCase):
                          bytearray([0xFE, 0xFE, 0x09, 0xD7, 0xEB, 0xFE, 0x0D]),
                          'Invalid frame was build')
 
+    def test_add_function(self):
+        """Testing correct add function to list"""
+        func = lambda x: x + x
+        self.parser.add_function(function_code=0x00, function_body=func)
+        self.assertEqual(func, self.parser._functions[0x00])
+
+    def test_add_function__code_to_large(self):
+        """Testing for exception"""
+        func = lambda x: x + x
+        try:
+            self.parser.add_function(function_code=0xFFF, function_body=func)
+            self.fail('No exception was thrown')
+        except Exception as e:
+            self.assertEqual(type(e), TypeError, 'Invalid exception thrown')
+
+    def test_parseData(self):
+        """Testing parsing data"""
+        # First byte in param is function code. Rest are params to correct function.
+        def func(some_value):
+            if some_value == 0b00011001:
+                return True
+            else:
+                return False
+
+        self.parser.add_function(function_code=0x00, function_body=func)
+        self.assertEqual(self.parser.parseData(bytearray([0x00, 0b10011000])),
+                         True,
+                         'Data passed to function incorrect')
+
+    def test_parseData__with_invalid_func_code(self):
+        """Testing call invalid (unregistered) function code. This should print only message"""
+        self.parser.parseData(bytearray([0x12, ]))
+
+    def test_parseData__catching_7F(self):
+        self.parser.add_function(function_code=0x7F, function_body=self.parser.parse7FResponse)
+        self.parser.parseData(bytearray([0x7F, 0xFF, 0b00000001, 0, 0, 0, 0, 0xFF]))
+        self.assertTrue([0x00, ] in self.parser.tasks, 'Error while catching 7F response in parseData function')
+
     def test_parser7FResponse(self):
         """testing request for 0x00, 0x01, 0x06, 0x07, 0x0D. 0x19, 0x1D functions"""
         # we have 39 base functions -> 39 bits: 0b00000000 00000000 00000000 00000000 0000000
