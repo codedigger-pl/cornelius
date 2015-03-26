@@ -20,3 +20,4 @@ from Satel.tests.byteFunctions import FunctionsTest
 from Satel.tests.integra import DefaultIntegraTests, Integra128Test, Integra24Test, Integra256Test, Integra32Test, Integra64Test
 from Satel.tests.detector import DetectorTest
 from Satel.tests.out import OutTest
+from Satel.tests.zone import ZoneTest

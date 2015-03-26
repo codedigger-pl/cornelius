@@ -5,6 +5,7 @@ import unittest
 
 from Satel.integra import Out
 
+
 class OutTest(unittest.TestCase):
     """Testing Satel Out class"""
 

@@ -37,7 +37,9 @@ class Flake8Test(unittest.TestCase):
                  'ethernetDataReader.py',
                  'integra.py',
                  'byteFunctions.py',
-                 'detector.py', )
+                 'detector.py',
+                 'out.py',
+                 'zone.py', )
         for file in files:
             self.assertEqual(main.check_file('Satel/tests/' + file, ignore=('E501', )), 0,
                              '(FLAKE8) Errors or warnings while testing ' + file)
