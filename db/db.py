@@ -25,8 +25,10 @@ from sqlalchemy.ext.declarative import declarative_base
 import bcrypt
 from statics import statics
 
-if __name__=='__main__': import settings
-else:  from db import settings
+if __name__ == '__main__':
+    import settings
+else:
+    from db import settings
 
 # Some base database settings
 engine=create_engine(settings.db_string, echo=False)
@@ -313,7 +315,7 @@ if __name__ == '__main__':
 
 
 # Creating initial database with default values. If there are some data,
-# reseting whole database
+# resetting whole database
 if settings.db_createTables:
 
   # Creating tables

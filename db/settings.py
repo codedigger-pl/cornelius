@@ -26,5 +26,5 @@ db_string=db_driver+'://'+                                                    \
   db_name
 
 # Do we have to create tables? Set this to true before first system start.
-# After set this to false, or all your data will be deleted.
+# After this, set this to false, or all your data will be lost.
 db_createTables=False
